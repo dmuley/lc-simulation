@@ -4,6 +4,8 @@ This is a program that simulates lightcurves for systems with multiple planets a
 
 The processing\_pipeline folder contains an earlier pipeline that works only for a single-planet, single-star case. This code can be run out-of-the-box but is slow and of limited capability. As of now the nested-Keplerian does not directly feed into the light-curve integrator.
 
+_Please do not look into folders marked "old", "misc", or similar. Much of that code is experimental or brief tried-and-failed snippets which may not even run, or if it does may be too slow, untested or unreliable to be useful._
+
 Todo list:
 
 + Seamless transition from nested-Keplerian to integrator, optimize selections of planets and stars to ensure minimal computation time. Treat the multiple-star case.
