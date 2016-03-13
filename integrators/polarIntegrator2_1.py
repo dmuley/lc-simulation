@@ -101,14 +101,12 @@ def getTangentsIntersections(circ):
 	return (cir, tangents, intersections, radii, circles_associated);
 	
 def generateRadiiThetas(n, circles, *args):
-	tt = time.time();
+	#tt = time.time();
 	r = np.array([]);
 	for item in args:
-		r = np.append(r, item.ravel())
-		r = np.append(r, item.ravel() + np.pi);
-		r = np.append(r, -item.ravel());
+		r = np.append(r, item.ravel());
 	
-	r = np.unique(r);
+	r = np.unique(np.concatenate((r, r + np.pi/2, r + np.pi, r + 3 * np.pi/2, 2 * np.pi - r, np.pi - r)));
 	
 	r[(r > np.pi * 2) | (r < 0)] %= (2 * np.pi);
 
@@ -118,7 +116,7 @@ def generateRadiiThetas(n, circles, *args):
 	for o in range(0,len(r) - 1):
 		ang = np.linspace(r[o], r[o + 1], n);
 		bounded_region = np.append(bounded_region, ang);
-	print "Linspace Time: " + str(time.time() - tt);
+	#print "Linspace Time: " + str(time.time() - tt);
 		
 	#print len(bounded_region);
 		
@@ -157,7 +155,7 @@ def generateRadiiThetas(n, circles, *args):
 			radii[4 * c - 1][q] = -radius_2[radius_2 < 0.];			
 		
 	
-	print time.time() - tt;	
+	#print time.time() - tt;	
 		
 	return np.transpose(radii), angles;
 
@@ -179,7 +177,7 @@ def rd2(coords, circles,opt = 0):
 				indicator[((xs - m[1])**2 + (ys - m[2])**2 > (m[0] * 1.0001)**2)] += 1./(len(circles) - 1);	   
 		
 		l = time.time() - h;
-		print l
+		#print l
 			
 		if opt == 1:
 			return l;
@@ -192,7 +190,7 @@ def rd2(coords, circles,opt = 0):
 		
 			return u, coords[1];
 				
-def groupAndIntegrate(bounds):
+def groupAndIntegrate(bounds, num):
 	rad = [];
 	theta = [];
 
@@ -210,15 +208,15 @@ def groupAndIntegrate(bounds):
 	#an even number of intersections
 	
 	area = 0;
+	
 	for i in range(0,len(d_theta)):
 		h = 0;
-		if (d_theta[i] < 2 * np.pi / 8.):
-			for p in np.arange(0,len(rad[i]),2):
-				h += rad[i][p + 1]**2 - rad[i][p]**2;
-			for q in np.arange(0,len(rad[i + 1]), 2):
-				h += rad[i + 1][q + 1]**2 - rad[i + 1][q]**2;
-			
-		h *= d_theta[i];
+		if (d_theta[i] < 2 * np.pi / (num - 10.)):
+			h += np.sum(rad[i][1::2]**2 - rad[i][0::2]**2);
+			h += np.sum(rad[i + 1][1::2]**2 - rad[i][0::2]**2);
+
+			h *= d_theta[i];
+		
 		area += h;
 	
 	area /= 4.;
@@ -239,9 +237,9 @@ def plot_tangent_lines(tangents, circ):
 		o = np.linspace(-circ[0][0], circ[0][0],201);
 		plt.plot(o * np.cos(q) + circ[0][1], o * np.sin(q) + circ[0][2]);
 				
-		
+"""		
 u = time.time();
-c = [[100., 0., 0.],[1,99,0]]; #no need for dummy here
+c = [[100., 0., 0.],[1,98.,30.]]; #no need for dummy here
 y = getTangentsIntersections(c);
 m = generateRadiiThetas(16,y[0], y[1], y[2]);
 f = rd2(m, c, opt = 0);
@@ -266,6 +264,8 @@ plt.ylabel("sky-projected y-position (arbitrary units)");
 for ee in range(0,len(f[0])):
     plt.plot(f[0][ee] * np.cos(f[1][ee]), f[0][ee] * np.sin(f[1][ee]), '.');
 	
-plt.ylim(-100,100);
-plt.xlim(-100,100);
+plt.ylim(-2,2);
+plt.xlim(96,100);
 plt.show();
+
+"""
