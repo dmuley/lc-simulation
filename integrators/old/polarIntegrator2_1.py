@@ -8,57 +8,31 @@ import time;
 import itertools;
 
 def getTangentsIntersections(circ):
-	cir = np.array(circ);
-	circles = circ;
-
-	x_base = circles[0][1];
-	y_base = circles[0][2];
+	circles = np.array(circ);
+	circles.T[1] -= circles[0][1];
+	circles.T[2] -= circles[0][2];
 	
-	for q in circles:
-		q[1] -= x_base;
-		q[2] -= y_base;
-		
-	tangents = [];
-	radii = [];
+	t_circles = circles.T;
+	
+	tans = np.array([]);
 	intersections = [];
+	radii = [];
 	circles_associated = [];
 	
-	#get tangent lines and minimal/maximal radii of the circle with respect to the basis
+	tangents = np.zeros(len(circles)) + np.pi;
+	tangents_var = np.zeros(len(circles)) + np.pi
+	tangents[t_circles[1] != 0.] = np.arctan2(t_circles[2][t_circles[1] != 0.],t_circles[1][t_circles[1] != 0.]);
+	tangents_var[t_circles[2]**2 + t_circles[1]**2 != 0] = np.arcsin(t_circles[0][t_circles[2]**2 + t_circles[1]**2 != 0]/np.sqrt(t_circles[2]**2 + t_circles[1]**2)[t_circles[2]**2 + t_circles[1]**2 != 0]);
 	
-	for m in range(0, len(circles)):
-		constant_angle = np.pi;
-		variable_angle = np.pi;
-		try:
-			constant_angle = np.arctan(circles[m][2]/circles[m][1]);
-		except ZeroDivisionError:
-			constant_angle = np.pi;
-
-		try:
-			variable_angle = np.arcsin(circles[m][0]/np.sqrt(circles[m][1]**2 + circles[m][2]**2));
-		except ZeroDivisionError:
-			variable_angle = np.pi;
-			
-		if (np.isnan(constant_angle) or np.isnan(variable_angle)):
-			constant_angle = np.pi;
-			variable_angle = np.pi;
-
-		constant_radius = np.sqrt(circles[m][1]**2 + circles[m][2]**2);
-		variable_radius = circles[m][0];
-		
-		if (np.abs(constant_radius) < np.abs(variable_radius)):
-			constant_angle = np.pi;
-			variable_angle = np.pi;
-			
-		#correction for floating-point error
-		tangents.append([constant_angle - variable_angle + 5 * np.finfo(np.float32).eps, constant_angle + variable_angle - 5 * np.finfo(np.float32).eps]);
+	tangents = np.concatenate((tangents - tangents_var + 5 * np.finfo(np.float32).eps, tangents, tangents + tangents_var - 5 * np.finfo(np.float32).eps));
 		
 		#maybe will be used later, but not now.
-		radii.append([constant_radius - variable_radius, constant_radius + variable_radius]);
+		#radii.append([constant_radius - variable_radius, constant_radius + variable_radius]);
 		
 
 	
 		#now to get intersections
-	
+	for m in range(0,len(circles)):
 		for s in range(m, len(circles)):
 			if (s != m):
 				#using law of cosines
@@ -81,24 +55,22 @@ def getTangentsIntersections(circ):
 				x1 = dist_2 * np.cos(theta_constant + theta_variable) + circles[m][1];
 				y1 = dist_2 * np.sin(theta_constant + theta_variable) + circles[m][2];
 				
-				intersect_1 = np.arctan(y0/x0) + 0 * np.finfo(np.float32).eps;
-				intersect_2 = np.arctan(y1/x1) - 0 * np.finfo(np.float32).eps;
+				intersect_1 = np.arctan2(y0,x0) + 0 * np.finfo(np.float32).eps;
+				intersect_2 = np.arctan2(y1,x1) - 0 * np.finfo(np.float32).eps;
 				
 				if ((not np.isnan(intersect_1)) or (not np.isnan(intersect_2))):
 					intersections.append([intersect_1, intersect_2]);
 				else:
 					intersections.append([0.,np.pi * 2])
-				circles_associated.append([m, s]);
+				#circles_associated.append([m, s]);
 					
 				
 	tangents = np.array(tangents);
 	radii = np.array(radii);	
 	intersections = np.array(intersections);
 	circles_associated = np.array(circles_associated);
-	
-	circ = cir;
-	
-	return (cir, tangents, intersections, radii, circles_associated);
+		
+	return (circles, tangents, intersections, radii, circles_associated);
 	
 def generateRadiiThetas(n, circles, *args):
 	#tt = time.time();
@@ -209,13 +181,13 @@ def groupAndIntegrate(bounds, num):
 	
 	area = 0;
 	
-	for i in range(0,len(d_theta)):
+	for i in range(0,len(d_theta))[::-1]:
 		h = 0;
-		if (d_theta[i] < 2 * np.pi / (num - 10.)):
+		if (d_theta[i] < 2 * np.pi / (num - 1.)):
 			h += np.sum(rad[i][1::2]**2 - rad[i][0::2]**2);
-			h += np.sum(rad[i + 1][1::2]**2 - rad[i][0::2]**2);
+			h += np.sum(rad[i - 1][1::2]**2 - rad[i - 1][0::2]**2);
 
-			h *= d_theta[i];
+			h *= d_theta[i]**2/np.sin(d_theta[i]);
 		
 		area += h;
 	
@@ -239,33 +211,30 @@ def plot_tangent_lines(tangents, circ):
 				
 """		
 u = time.time();
-c = [[100., 0., 0.],[1,98.,30.]]; #no need for dummy here
+c = [[100., 0., 0.],[1,98.,-2.]]; #no need for dummy here
 y = getTangentsIntersections(c);
+print time.time() - u;
+u = time.time();
 m = generateRadiiThetas(16,y[0], y[1], y[2]);
+print time.time() - u;
 f = rd2(m, c, opt = 0);
-oh= groupAndIntegrate(f);
+oh= groupAndIntegrate(f, 15);
 print "Light output (normalized) = " + str(oh);
 print time.time() - u;
-
 time_f = 0.;
 #for q in range(0,100):
 #	oh = rd2(m, c,opt=1);
 #	time_f += oh;
-
 #print "Final time (100 iterations): " + str(time_f/100.);
-
 plot_circles(c);
 #plot_tangent_lines(m[1], c);
-
 plt.title("Bodies (position of star = (0,0); radius of star = " + str(c[0][0]) + "\n normalized light output = " + str(1. - oh/(c[0][0]**2 * np.pi)) + ")");
 plt.xlabel("sky-projected x-position (arbitrary units)");
 plt.ylabel("sky-projected y-position (arbitrary units)");
-
 for ee in range(0,len(f[0])):
     plt.plot(f[0][ee] * np.cos(f[1][ee]), f[0][ee] * np.sin(f[1][ee]), '.');
 	
-plt.ylim(-2,2);
+plt.ylim(-2,-4);
 plt.xlim(96,100);
 plt.show();
-
 """
