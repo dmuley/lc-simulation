@@ -4,8 +4,8 @@ import numpy as np;
 
 light_blocked = [];
 
-for pos in np.linspace(-110,110,228):
-	n = 51;
+for pos in np.linspace(-200,200,1028):
+	n = 24;
 
 	c = [[100., 0., 0.],[10.,pos,0.1],[10., 0.1, pos]];
 	y = getTangentsIntersections(c);
@@ -16,7 +16,7 @@ for pos in np.linspace(-110,110,228):
 	print pos;
 	
 r = np.array(light_blocked);
-plt.plot(np.linspace(-200,200,228),-r/(np.pi * 100.**2));
-plt.plot(np.linspace(-200,200,228), np.linspace(-0.01,-0.01, 228));
+plt.plot(np.linspace(-200,200,1028),-r/(np.pi * 100.**2));
+plt.plot(np.linspace(-200,200,1028), np.linspace(-0.01,-0.01, 1028));
 plt.xlim(-200,200);
 plt.show();

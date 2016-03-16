@@ -144,7 +144,7 @@ def groupAndIntegrate(bounds, num):
 	
 	for i in np.arange(0,len(d_theta))[::-1] + 1:
 		h = 0;
-		if (d_theta[i - 1] < 2 * np.pi / (num - 1.)):
+		if (d_theta[i - 1] < 2 * np.pi / (num - 1.) / 2):
 			h += np.sum(rad[i][1::2]**2 - rad[i][0::2]**2);
 			h += np.sum(rad[i - 1][1::2]**2 - rad[i - 1][0::2]**2);
 
