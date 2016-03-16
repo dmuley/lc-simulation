@@ -7,7 +7,7 @@ light_blocked = [];
 for pos in np.linspace(-200,200,178):
 	n = 51;
 
-	c = [[100., 0., 0.],[10.,pos,0.1], [10., ];
+	c = [[100., 0., 0.],[10.,pos,0.1]];
 	y = getTangentsIntersections(c);
 	m = generateRadiiThetas(n,y[0], y[1], y[2]);
 	f = rd2(m, c, opt = 0);
