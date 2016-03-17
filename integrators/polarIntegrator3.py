@@ -1,8 +1,7 @@
-#A faster and better version of the polar integrator.
-#Hopefully no random errors.
-
+#A faster and better version of the polar integrator. Still has some issues (including jittering over the domain (-pi/2, pi/2) but beyond that it works quite well. Due to jittering a step size of at least 50 / (number of bodies) is recommended at all times, ideally 70 / (number of bodies). Beyond that it can become extremely slow.
 
 #STILL A WORK IN PROGRESS
+#This code is freely reusable by anyone so long as it is attributed to Dhruv Muley. (dhruv dot muley at gmail dot com).
 
 import numpy as np;
 from scipy.optimize import fsolve;
@@ -11,6 +10,11 @@ import time;
 import itertools;
 
 def getTangentsIntersections(circ):
+	#Obtains the tangent lines of all circles that emanate from the origin
+	#of the first circle (the star whose light is being considered at the moment)
+	#After that, this function finds the points of intersection between each pair
+	#of circles, and converts them into angles from the center of the first circle.
+
 	circles = np.array(circ);
 	circles.T[1] -= circles[0][1];
 	circles.T[2] -= circles[0][2];
@@ -53,13 +57,19 @@ def getTangentsIntersections(circ):
 	return (circ, np.unique(tans[np.isfinite(tans)]), np.unique(ff[np.isfinite(ff)]));
 	
 def generateRadiiThetas(n, circles, *args):
+	#Generates many steps of angle in between the tangents and intersections of the first function.
+	#After that, uses a quadratic equation to get the radius from the center of the first circle
+	#of many points on the other circles (planets and moons).
+
+	#Points at zero and the radius of the outer circle (the maximum bound for our limits of integration)
+	#are also added, and may be retained or removed in the next function.
+
 	r = np.unique(np.concatenate(args));
 	r = np.concatenate((r, -r, np.pi/2. - r, np.pi * 3./2. + r));
 	r[(r < 0.) | (r > 2 * np.pi)] %= 2 * np.pi;
 	angles = np.unique(np.concatenate([np.linspace(r[o], r[o + 1], n) for o in range(0,len(r) - 1)]));
 
 	radii = np.zeros((len(circles) * 4, len(angles)));
-	#print len(radii[0]), len(angles);
 	
 	for c in range(1, len(circles)):
 	
@@ -136,9 +146,8 @@ def groupAndIntegrate(bounds, num):
 	theta = np.array(theta);	
 	d_theta = np.diff(theta);
 
-	#need to tighten up loose bounds by grouping them
 	#provably (except in tangent line degenerate case or floating point error) there are always
-	#an even number of intersections
+	#an even number of intersections. These cases can simply be ignored with a large enough step number.
 	
 	area = 0;
 	
@@ -166,6 +175,7 @@ def groupAndIntegrate(bounds, num):
 	
 	return area;
 	
+#The following are just helper functions used to plot each instance of integration, for diagnostic purposes.
 def plot_circles(circ):
 	for q in circ:
 		o = np.linspace(-q[0], q[0], 101);
@@ -179,6 +189,14 @@ def plot_tangent_lines(tangents, circ):
 		o = np.linspace(0, circ[0][0],201);
 		plt.plot(o * np.cos(q) + circ[0][1], o * np.sin(q) + circ[0][2]);
 """
+The following code is strictly for testing purposes, so that you can see graphically how the methods written work
+for each position of star and planet. For most applications, you should use the template provided by the testCase*.py
+files, which generate a light curve.
+
+Beyond diagnostics, the main reason to access this file directly is to change the limb-darkening law. Right now the "star"
+is a perfect blackbody, although this is almost never exactly the case in real life. I would add LD law as a parameter
+but that would most likely make the integration take too much time (passing and integrating a function on the fly).
+
 u = time.time();
 c = [[100., 0., 0.], [10., 30.1, 0.1]]; #no need for dummy here
 y = getTangentsIntersections(c);
