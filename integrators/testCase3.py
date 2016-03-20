@@ -4,10 +4,10 @@ import numpy as np;
 
 light_blocked = [];
 
-for pos in np.linspace(-200,200,528):
-	n = 71;
+for pos in np.linspace(0,100,180):
+	n = 31;
 
-	c = [[100., 0., 0.],[20.,pos,0.1],[1., 4*pos, 0.1]];
+	c = [[100., 0., 0.],[-pos,0.1,0.1]];
 	y = getTangentsIntersections(c);
 	m = generateRadiiThetas(n,y[0], y[1], y[2]);
 	f = rd2(m, c, opt = 0);
@@ -16,7 +16,7 @@ for pos in np.linspace(-200,200,528):
 	print pos;
 	
 r = np.array(light_blocked);
-plt.plot(np.linspace(-200,200,528),-r);
-plt.plot(np.linspace(-200,200,528), np.linspace(-0.01,-0.01, 528));
+plt.plot(np.linspace(-200,200,180),-r);
+plt.plot(np.linspace(-200,200,180), np.linspace(-0.01,-0.01, 180));
 plt.xlim(-200,200);
 plt.show();
