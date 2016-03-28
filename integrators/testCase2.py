@@ -11,7 +11,7 @@ for pos in np.linspace(-200,200,528):
 	y = getTangentsIntersections(c);
 	m = generateRadiiThetas(n,y[0], y[1], y[2]);
 	f = rd2(m, c, opt = 0);
-	oh= groupAndIntegrate(bounds = f, num = n, star_rad = 100., ld_coeff = 1.);
+	oh= groupAndIntegrate(bounds = f, num = n, star_rad = 100., ld_coeff = 0.5);
 	light_blocked.append(oh);
 	print pos;
 	

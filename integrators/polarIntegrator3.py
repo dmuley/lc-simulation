@@ -133,7 +133,9 @@ def rd2(coords, circles,opt = 0):
 		
 			return u, coords[1];
 				
-def groupAndIntegrate(bounds, num, star_rad, ld_coeff = 0.):
+def groupAndIntegrate(bounds, num, star_rad, ld_coeff = [1.],ld_power = [0.]):
+	ld_coeffs = np.array(ld_coeff);
+	ld_power = np.array(ld_power);
 	rad = [];
 	theta = [];
 
@@ -151,23 +153,24 @@ def groupAndIntegrate(bounds, num, star_rad, ld_coeff = 0.):
 	
 	area = 0;
 	
+	s = np.arange(0,len(ld_coeffs));
+	s = s[(ld_coeffs[s] != 0)]
+					
 	for i in np.arange(0,len(d_theta))[::-1] + 1:
 		h = 0;
-		if (d_theta[i - 1] < 2 * np.pi / (num - 1.) / 2):
-			if ld_coeff < 1.:
-				# CONSTANT LD LAW
-				h += np.sum(rad[i][1::2]**2 - rad[i][0::2]**2) * (1 - ld_coeff) / (np.pi * star_rad**2);
-				h += np.sum(rad[i - 1][1::2]**2 - rad[i - 1][0::2]**2) * (1 - ld_coeff) / (np.pi * star_rad**2);
-			
-			if ld_coeff != 0:
-				# SPHERICAL LD LAW
-				h += np.sum((star_rad**2 - rad[i][0::2]**2)**1.5 - (star_rad**2 - rad[i][1::2]**2)**1.5) * ld_coeff / (np.pi * star_rad**3);
-				h += np.sum((star_rad**2 - rad[i - 1][0::2]**2)**1.5 - (star_rad**2 - rad[i - 1][1::2]**2)**1.5) * ld_coeff / (np.pi * star_rad**3);
+		if (d_theta[i - 1] < np.pi / (num - 1.)):
+			for m in s:
+				n = ld_power[m];
+				r = 0;
+				
+				r += np.sum((star_rad**2 - rad[i][0::2]**2)**(n/2. + 1) - (star_rad**2 - rad[i][1::2]**2)**(n/2. + 1)) / (np.pi * star_rad**(n+2));
+				r += np.sum((star_rad**2 - rad[i - 1][0::2]**2)**(n/2. + 1) - (star_rad**2 - rad[i - 1][1::2]**2)**(n/2. + 1)) / (np.pi * star_rad**(n+2));
+				h += r * ld_coeffs[m];
 		
-				h *= d_theta[i-1]**2/np.sin(d_theta[i-1]);
+			h *= d_theta[i-1]**2/np.sin(d_theta[i-1]);
 			
 		area += h;
-	area /= 4.;		
+	area /= 4. * np.sum(ld_coeffs);		
 	
 	return area;
 	
