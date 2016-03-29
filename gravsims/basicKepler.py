@@ -174,6 +174,9 @@ def plot_orbit(a, args):
 	ax.set_zlim(-l, l);
 	
 	fig.show();
+
+
+"""JUST A SAMPLE DEMONSTRATION, SHOULD NOT BE EXECUTED
 	
 q = OrbitingSystem();
 q.bodies = [0,0];
@@ -245,13 +248,13 @@ plot_orbit(a=5, args = final_array);
 
 
 	
-'''
+
 #OPERATING EXAMPLE TO RUN THIS CODE
 starPlanet = OrbitingSystem();
 starPlanet.bodies = [0,0,0,0]
 
 q = OrbitingSystem();
-"""q.bodies = [0,0];
+q.bodies = [0,0];
 
 q.bodies[0] = OrbitingSystem()
 q.bodies[0].mass = 332946.-125000.;
@@ -260,7 +263,7 @@ q.bodies[1] = OrbitingSystem();
 q.bodies[1].mass = 125000.;
 q.bodies[1].semimajor = 0.05;
 
-q.setTotalMass();"""
+q.setTotalMass();
 
 q.mass = 332946.;
 
@@ -346,5 +349,5 @@ plt.xlim(times[0], times[len(times) - 1]);
 plt.show();
 
 plot_orbit(a=1.5, args = final_array);
-'''
 
+"""
