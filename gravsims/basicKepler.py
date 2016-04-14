@@ -4,8 +4,8 @@ from scipy.optimize import fsolve;
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-STEPS = 10001;
-REVOLUTIONS = 2;
+STEPS = 2001;
+REVOLUTIONS = 1.01;
 
 class OrbitingSystem:
 	#add more orbiting systems in, with mass of 0
@@ -17,6 +17,7 @@ class OrbitingSystem:
 	eccentricity = 0;
 	phase = 0;
 	radius = 0;
+	temperature = 0;
 	
 	bt = 1;
 	
