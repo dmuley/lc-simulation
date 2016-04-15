@@ -23,13 +23,13 @@ q.bodies = [0,0];
 
 q.bodies[0] = OrbitingSystem()
 q.bodies[0].mass = 332946. * 0.6897;
-q.bodies[0].temperature = 2.3392717826;
+q.bodies[0].temperature = 0.985;
 q.bodies[0].radius = 0.6489 * 0.00464913034;
 
 q.bodies[1] = OrbitingSystem();
 q.bodies[1].mass = 332946. * 0.20255;
 q.bodies[1].semimajor = 0.22431;
-q.bodies[1].temperature = 0.2930831618;
+q.bodies[1].temperature = 0.015;
 q.bodies[1].inclination = np.pi * 90./180.
 q.bodies[1].radius = 0.22623 * 0.00464913034;
 
@@ -116,10 +116,10 @@ fy = np.array(final_y).T;
 fz = np.array(final_z).T;
 
 zpos = np.argsort(fz);
-fx2 = fx[np.arange(np.shape(fx)[0])[:,np.newaxis], np.argsort(fz)];
-fy2 = fy[np.arange(np.shape(fy)[0])[:,np.newaxis], np.argsort(fz)];
+#fx2 = fx[np.arange(np.shape(fx)[0])[:,np.newaxis], np.argsort(fz)];
+#fy2 = fy[np.arange(np.shape(fy)[0])[:,np.newaxis], np.argsort(fz)];
 
-print len(fx2), len(times);
+print len(fx), len(times);
 
 #### ACTUAL TRANSIT MODELING BELOW ####
 light_blocked = np.array([]);
@@ -128,7 +128,7 @@ n = 31;
 ta = transit_array;
 
 for m in range(0,len(zpos)):
-	c = np.array([[ta[r].radius, fx2[m][r], fy2[m][r]] for r in zpos[m]]);
+	c = np.array([[ta[r].radius, fx[m][r], fy[m][r]] for r in zpos[m]]);
 	L_perarea = np.array([ta[r].temperature for r in zpos[m]])
 	
 	if False in (np.array(zpos[m]) == np.arange(0,len(zpos[m]))):
