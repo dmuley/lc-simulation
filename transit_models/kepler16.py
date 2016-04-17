@@ -106,7 +106,6 @@ plt.xlim(times[0], times[len(times) - 1]);
 
 plt.show();		
 
-#plot_orbit(a=1.5, args = final_array);
 
 ###### LOOM ALGORITHM ######
 # Using the Z-values we will index the orders of X and Y values, and then get transits for each body.
@@ -116,8 +115,6 @@ fy = np.array(final_y).T;
 fz = np.array(final_z).T;
 
 zpos = np.argsort(fz);
-#fx2 = fx[np.arange(np.shape(fx)[0])[:,np.newaxis], np.argsort(fz)];
-#fy2 = fy[np.arange(np.shape(fy)[0])[:,np.newaxis], np.argsort(fz)];
 
 print len(fx), len(times);
 
@@ -127,13 +124,14 @@ light_blocked = np.array([]);
 n = 31;
 ta = transit_array;
 
+
 for m in range(0,len(zpos)):
-	c = np.array([[ta[r].radius, fx[m][r], fy[m][r]] for r in zpos[m]]);
+	c = np.array([[ta[r].radius * 1000., fx[m][r] * 1000., fy[m][r] * 1000.] for r in zpos[m]]);
 	L_perarea = np.array([ta[r].temperature for r in zpos[m]])
 	
-	if False in (np.array(zpos[m]) == np.arange(0,len(zpos[m]))):
-                print zpos[m];
-		print L_perarea;
+	#if False in (np.array(zpos[m]) == np.arange(0,len(zpos[m]))):
+        #        print zpos[m];
+	#	print L_perarea;
 
 	s = 0.;
 
@@ -154,25 +152,7 @@ for m in range(0,len(zpos)):
 	print times[m], s;
 	light_blocked = np.append(light_blocked, s);
 
-	'''
-
-	for ind in range(0,len(ta)):
-		if L_perarea[ind] != 0.:
-			c_trunc = c[ind:len(ta)];
-			sr = c_trunc[0][0];
-			yi = getTangentsIntersections(c_trunc);
-			m2 = generateRadiiThetas(n,yi[0], yi[1], yi[2]);
-			
-			f = rd2(m2, c_trunc, opt = 0);
-			oh= groupAndIntegrate(bounds = f, num = n, star_rad = sr, ld_coeff = np.array([1., 0., 0., 0.]), ld_power = np.array([0., 0.5, 1., 1.5]));
-			oh *= L_perarea[ind];
-		
-			s += oh;
-	print s, times[m];
-	light_blocked = np.append(light_blocked, s);
-
-	'''
 plt.clf();
-plt.plot(times, -light_blocked, '.');
+plt.plot(times, -light_blocked, '-');
 plt.xlim(times[0], times[len(times) - 1]);
 plt.show();
