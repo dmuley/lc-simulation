@@ -9,8 +9,9 @@ LEN = 278
 for pos in np.linspace(-200,200,LEN):
 	n = 91;
 
-	c = [[100., 10.-pos, 0.],[1.,pos,0.1]];
+	c = [[100., 0., 0.],[1.,pos,0.1]];
 	y = getTangentsIntersections(c);
+	print y[1]
 	m = generateRadiiThetas(n,y[0], y[1], y[2]);
 	f = rd2(m, c, opt = 0);
 	oh= groupAndIntegrate(bounds = f, num = n, star_rad = 100., ld_coeff = [1., 0., 0., 0.], ld_power = [0.0, 0.5, 1., 15]);

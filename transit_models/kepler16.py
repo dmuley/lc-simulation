@@ -53,8 +53,9 @@ r.bodies[0].radius = 0.000477894503 * 0.7538;
 
 r.bodies[1] = OrbitingSystem();
 r.bodies[1].mass = 0.00001;
-r.bodies[1].semimajor = 0.1;
+r.bodies[1].semimajor = 1.;
 r.bodies[1].radius = 0.0000001
+r.bodies[1].inclination = np.pi * 0.5
 
 r.setTotalMass();
 
@@ -120,35 +121,56 @@ zpos = np.argsort(fz);
 
 print len(fx), len(times);
 
+### measuring intersections
+
+ta_elements = np.arange(0,len(transit_array));
+ta_combos = itertools.combinations(list(ta_elements), 2);
+intersects = (fx * 0).T;
+
+print len(ta_elements), len(intersects);
+
+for a in ta_combos:
+        intersects[a[0]][np.where((fx.T[a[0]] - fx.T[a[1]])**2 + (fy.T[a[0]] - fy.T[a[1]])**2 < (transit_array[a[0]].radius + transit_array[a[1]].radius)**2)] += 1;
+        intersects[a[1]][np.where((fx.T[a[0]] - fx.T[a[1]])**2 + (fy.T[a[0]] - fy.T[a[1]])**2 < (transit_array[a[0]].radius + transit_array[a[1]].radius)**2)] += 1;
+
+#	print np.where((fx.T[a[0]] - fx.T[a[1]])**2 + (fy.T[a[0]] - fy.T[a[1]])**2 < (transit_array[a[0]].radius + transit_array[a[1]].radius)**2);
+
+#intersect_sums = np.sum(intersects.T, axis = 1);
+#for b in intersects.T:
+#	print b;
+
+#print len(intersect_sums)
+light_blocked = np.zeros(len(fx));
+#print len(np.where(intersect_sums < 0.1)[0]);
 #### ACTUAL TRANSIT MODELING BELOW ####
-light_blocked = np.array([]);
 
 n = 31;
 ta = transit_array;
 
-for m in range(0,len(zpos)):
-	c = np.array([[ta[r].radius * 1000., fx[m][r] * 1000., fy[m][r] * 1000.] for r in zpos[m]]);
-	lum = np.array([ta[s].temperature for s in zpos[m]]);
+for m in range(0,len(light_blocked)):
+	c = np.array([[ta[r].radius * 1000., fx[m][r] * 1000., fy[m][r] * 1000.] for r in zpos[m]])[intersects.T[m][zpos[m]] > 0.1];
+	lum = np.array([ta[s].temperature for s in zpos[m]])[intersects.T[m][zpos[m]] > 0.1];
 	
 	t = 0.;
 	
 	for i in np.where(lum != 0.)[0]:
-		if lum[i] != 0:
-			ct = c[i:len(ta)];
-			ct.T[1] -= ct[0][1];
-			ct.T[2] -= ct[0][2];
+		ct = c[i:len(c)];
+		ct.T[1] -= ct[0][1];
+		ct.T[2] -= ct[0][2];
 
-			ti = getTangentsIntersections(ct);
+		ti = getTangentsIntersections(ct);
+
+		if not ((ti[1] % np.pi) < np.zeros(len(ti[1])) + 0.01).all():
 			rt = generateRadiiThetas(n, ti[0], ti[1], ti[2]);
 			f = rd2(rt, ct, opt = 0);
-			oh = groupAndIntegrate(bounds = f, num = n, star_rad = ct[0][0], ld_coeff = [1., 0., 0., 0.], ld_power = [0.0, 0.5, 1., 1.5]);
+			oh = groupAndIntegrate(bounds = f, num = n, star_rad = ct[0][0], ld_coeff = [1.9, 0., 1., 0.], ld_power = [0.0, 0.5, 1., 1.5]);
 			
 			oh *= lum[i]
 			t += oh;
-		
+				
 	print times[m], t
 	
-	light_blocked = np.append(light_blocked, t);
+	light_blocked[m] = t;
 
 plt.clf();
 plt.plot(times, -light_blocked, '-');
