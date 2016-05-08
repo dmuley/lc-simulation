@@ -10,8 +10,11 @@ _Please do not look into folders marked "old", "misc", or similar. Much of that 
 
 Todo list:
 
-+ Seamless transition from nested-Keplerian to integrator, optimize selections of planets and stars to ensure minimal computation time. Treat the multiple-star case.
-+ Fixing excess jittering on the right-hand-side (-pi/2 < theta < pi/2) of a star.
-+ Test integrator with various limb-darkening laws (currently only constant one is used for testing purposes).
++ Seamless transition from nested-Keplerian to integrator, optimize selections of planets and stars to ensure minimal computation time. Treat the multiple-star case. (DONE)
++ Fixing excess jittering on the right-hand-side (-pi/2 < theta < pi/2) of a star. (jittering successfully suppresed)
++ Test integrator with various limb-darkening laws. (DONE)
 + Make further optimizations and accuracy adjustments in the code (use numpy wherever possible, unroll excessively deep/long loops, etc.)
 + Comment code in-depth to make usage and understanding easier.
++ Treat retrograde-orbit case.
++ Produce professional-quality visualizations to demonstrate working of program (ongoing).
++ Test against detrended light-curves from _Kepler_ space telescope in order to ensure veracity of algorithm.
