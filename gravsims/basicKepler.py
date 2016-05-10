@@ -4,7 +4,7 @@ from scipy.optimize import fsolve;
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-STEPS = 7501;
+STEPS = 17501;
 REVOLUTIONS = 0.125;
 
 class OrbitingSystem:

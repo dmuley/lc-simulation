@@ -18,6 +18,8 @@ STEPS = 1001;
 REVOLUTIONS = 0.125;
 
 #OPERATING EXAMPLE TO RUN THIS CODE
+#FOR RETROGRADE ORBITS: Add pi radians to inclination, add pi radians to arg_periastron
+
 starPlanet = OrbitingSystem();
 starPlanet.bodies = [0,0]
 
@@ -35,7 +37,7 @@ q.bodies[1].semimajor = 1. * 0.22431;
 q.bodies[1].temperature = 0.015;
 q.bodies[1].inclination = np.pi * 90./180.
 q.bodies[1].radius = 0.22623 * 0.00464913034;
-#q.bodies[1].phase = np.pi/5.;
+q.bodies[1].phase = -np.pi/8.;
 
 q.setTotalMass();
 
@@ -54,7 +56,7 @@ r.bodies[0].radius = 0.000477894503 * 0.7538;
 r.bodies[1] = OrbitingSystem();
 r.bodies[1].mass = 0.00001;
 r.bodies[1].semimajor = 1.;
-r.bodies[1].radius = 0.0000001
+r.bodies[1].radius = 0.0000000001
 r.bodies[1].inclination = np.pi * 0.5
 
 r.setTotalMass();
@@ -130,8 +132,9 @@ intersects = (fx * 0).T;
 print len(ta_elements), len(intersects);
 
 for a in ta_combos:
-        intersects[a[0]][np.where((fx.T[a[0]] - fx.T[a[1]])**2 + (fy.T[a[0]] - fy.T[a[1]])**2 < (transit_array[a[0]].radius + transit_array[a[1]].radius)**2)] += 1;
-        intersects[a[1]][np.where((fx.T[a[0]] - fx.T[a[1]])**2 + (fy.T[a[0]] - fy.T[a[1]])**2 < (transit_array[a[0]].radius + transit_array[a[1]].radius)**2)] += 1;
+	if (transit_array[a[0]].temperature != 0 or transit_array[a[1]].temperature != 0):
+       		intersects[a[0]][np.where((fx.T[a[0]] - fx.T[a[1]])**2 + (fy.T[a[0]] - fy.T[a[1]])**2 < (transit_array[a[0]].radius + transit_array[a[1]].radius)**2)] += 1;
+       		intersects[a[1]][np.where((fx.T[a[0]] - fx.T[a[1]])**2 + (fy.T[a[0]] - fy.T[a[1]])**2 < (transit_array[a[0]].radius + transit_array[a[1]].radius)**2)] += 1;
 
 #	print np.where((fx.T[a[0]] - fx.T[a[1]])**2 + (fy.T[a[0]] - fy.T[a[1]])**2 < (transit_array[a[0]].radius + transit_array[a[1]].radius)**2);
 
@@ -165,6 +168,7 @@ for m in range(0,len(light_blocked)):
 			f = rd2(rt, ct, opt = 0);
 			oh = groupAndIntegrate(bounds = f, num = n, star_rad = ct[0][0], ld_coeff = [1.9, 0., 1., 0.], ld_power = [0.0, 0.5, 1., 1.5]);
 			
+			del rt, f;
 			oh *= lum[i]
 			t += oh;
 				
