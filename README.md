@@ -15,6 +15,6 @@ Todo list:
 + Test integrator with various limb-darkening laws. (DONE)
 + Make further optimizations and accuracy adjustments in the code (use numpy wherever possible, unroll excessively deep/long loops, etc.)
 + Comment code in-depth to make usage and understanding easier.
-+ Treat retrograde-orbit case.
++ Treat retrograde-orbit case. (DONE)
 + Produce professional-quality visualizations to demonstrate working of program (ongoing).
 + Test against detrended light-curves from _Kepler_ space telescope in order to ensure veracity of algorithm.

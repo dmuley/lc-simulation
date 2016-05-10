@@ -14,8 +14,8 @@ import numpy as np;
 from itertools import chain;
 import matplotlib.pyplot as plt;
 
-STEPS = 1001;
-REVOLUTIONS = 0.125;
+#STEPS = 1001;
+#REVOLUTIONS = 0.125;
 
 #OPERATING EXAMPLE TO RUN THIS CODE
 #FOR RETROGRADE ORBITS: Add pi radians to inclination, add pi radians to arg_periastron
@@ -23,6 +23,7 @@ REVOLUTIONS = 0.125;
 starPlanet = OrbitingSystem();
 starPlanet.bodies = [0,0]
 
+#Masses of stellar system
 q = OrbitingSystem();
 q.bodies = [0,0];
 
@@ -41,6 +42,7 @@ q.bodies[1].phase = -np.pi/8.;
 
 q.setTotalMass();
 
+#Masses of planetary system
 r = OrbitingSystem();
 #r.mass = 317.83 * 0.333;
 r.semimajor = 0.7048;
@@ -53,6 +55,7 @@ r.bodies[0] = OrbitingSystem();
 r.bodies[0].mass = 317.83 * 0.333;
 r.bodies[0].radius = 0.000477894503 * 0.7538;
 
+#Nominal moon
 r.bodies[1] = OrbitingSystem();
 r.bodies[1].mass = 0.00001;
 r.bodies[1].semimajor = 1.;
@@ -61,6 +64,7 @@ r.bodies[1].inclination = np.pi * 0.5
 
 r.setTotalMass();
 
+#Normalizing times of each body
 starPlanet.bodies[0], starPlanet.bodies[1] = q, r;
 starPlanet.setBaseTime();
 year = starPlanet.bt
@@ -82,7 +86,10 @@ final_z = [];
 final_array = []
 transit_array = [];
 
-print starPlanet.bodies;
+#print starPlanet.bodies;
+
+#Flattening list of bodies (probably want a more general interpretation later for jagged array of bodies).
+
 for a in range(0, len(starPlanet.bodies)):
 	for b in range(0, len(starPlanet.bodies[a].bodies)):
 		print (a, b)
@@ -138,24 +145,24 @@ for a in ta_combos:
 
 #	print np.where((fx.T[a[0]] - fx.T[a[1]])**2 + (fy.T[a[0]] - fy.T[a[1]])**2 < (transit_array[a[0]].radius + transit_array[a[1]].radius)**2);
 
-#intersect_sums = np.sum(intersects.T, axis = 1);
-#for b in intersects.T:
-#	print b;
 
-#print len(intersect_sums)
 light_blocked = np.zeros(len(fx));
-#print len(np.where(intersect_sums < 0.1)[0]);
+
 #### ACTUAL TRANSIT MODELING BELOW ####
 
+#Number of transit-modeling integration steps per timestep
 n = 31;
 ta = transit_array;
 
 for m in range(0,len(light_blocked)):
+	#Excluding bodies that do not intersect at this frame
+	#Need >0.1 because some bodies without any intersections are noted to have -0 intersections (off by some epsilon).
 	c = np.array([[ta[r].radius * 1000., fx[m][r] * 1000., fy[m][r] * 1000.] for r in zpos[m]])[intersects.T[m][zpos[m]] > 0.1];
 	lum = np.array([ta[s].temperature for s in zpos[m]])[intersects.T[m][zpos[m]] > 0.1];
 	
 	t = 0.;
 	
+	#Excluding as stars bodies with zero luminosity
 	for i in np.where(lum != 0.)[0]:
 		ct = c[i:len(c)];
 		ct.T[1] -= ct[0][1];
@@ -176,6 +183,7 @@ for m in range(0,len(light_blocked)):
 	
 	light_blocked[m] = t;
 
+#Plotting final light curve.
 plt.clf();
 plt.plot(times, -light_blocked, '-');
 plt.xlim(times[0], times[len(times) - 1]);
