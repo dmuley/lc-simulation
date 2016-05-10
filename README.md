@@ -1,18 +1,18 @@
-# lc-simulation
+# Kepler Generalized Light Curve Simulation
 
-This is a program that simulates lightcurves for systems with multiple planets and moons, based on the results of a nested-Keplerian simulation. The nested-Keplerian computes the positions of planets and moons with a variety of positions, inclinations, orbital phases, periods, etc., which is then converted into an (x,  y) sky-projected position. This in turn is passed to the light-curve integrator, which computes the light curve.
+The Kepler Generalized Light Curve Simulation computes light output with respect to time for systems with multiple planets, stars and moons, based on the results of a nested-Keplerian simulation. The nested-Keplerian computes the positions of planets and moons with a variety of positions, inclinations, orbital phases, periods, etc., which is then converted into an (x,  y) sky-projected position. This in turn is passed to the light-curve integrator, which calculates the amount of starlight blocked at each timestep and so constructs the lightcurve.
 
-The processing\_pipeline folder contains an earlier pipeline that works only for a single-planet, single-star case. This code can be run out-of-the-box but is slow and of limited capability. As of now the nested-Keplerian does not directly feed into the light-curve integrator.
+The processing\_pipeline folder contains an earlier pipeline that works only for a single-planet, single-star case. This code can be run out-of-the-box but is slow and of limited capability. As of now, the nested-Keplerian code has been updated to interface directly with the light-curve integrator, meaning that it is possible to create usable and physically accurate light curves. In order to do this, please write a script along the lines of kepler16.py (the calls to general\_transit.py can remain the same). *I do not recommend using an integration step number below 30* due to jittering on the right-hand side, although lower numbers can be used for sanity checks.
 
-In order to use the integration to generate a light curve, please make client code along the lines of testCase.py. I do not recommend using a step size below 50 due to the right-hand-side jittering issue. Nevertheless, both sides are fairly accurate, the LHS to within 0.01% and the RHS to within about 0.1%.
+##Features
 
-_Please do not look into folders marked "old", "misc", or similar. Much of that code is experimental or brief tried-and-failed snippets which may not even run, or if it does may be too slow, untested or unreliable to be useful._
++ Seamless transition from nested-Keplerian to integrator. Optimize selections of planets and stars for integration (does not calculate light curves of planets) to ensure minimal computation time. 
++ Low jittering on the right-hand-side (-pi/2 < theta < pi/2) of a star.
++ Works with a wide range of limb-darkening laws.
++ Retrograde orbits (add pi radians to inclination and argument of periastron).
 
-Todo list:
+##Todo
 
-+ Seamless transition from nested-Keplerian to integrator, optimize selections of planets and stars to ensure minimal computation time. Treat the multiple-star case. (DONE)
-+ Fixing excess jittering on the right-hand-side (-pi/2 < theta < pi/2) of a star. (jittering successfully suppresed)
-+ Test integrator with various limb-darkening laws. (DONE)
 + Make further optimizations and accuracy adjustments in the code (use numpy wherever possible, unroll excessively deep/long loops, etc.)
 + Comment code in-depth to make usage and understanding easier.
 + Treat retrograde-orbit case. (DONE)

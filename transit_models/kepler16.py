@@ -14,6 +14,7 @@ import numpy as np;
 from itertools import chain;
 import matplotlib.pyplot as plt;
 import general_transits as gt;
+import time;
 
 #OPERATING EXAMPLE TO RUN THIS CODE
 #FOR RETROGRADE ORBITS: Add pi radians to inclination, add pi radians to arg_periastron
@@ -114,12 +115,16 @@ plt.title("Sky-projected deviation of bodies in planetary system from COM");
 plt.xlim(times[0], times[len(times) - 1]);
 plt.show();		
 
+l = time.time()
+
 fx, fy, fz, zpos = gt.sort_keys(final_x, final_y, final_z);
 lb, intersects = gt.arrange_combinations(fx, fy, transit_array);
 
 n = 31;
 ta = transit_array;
 cadence, light_blocked = gt.generate_lightcurve(fx, fy, lb, intersects, n, ta, times, zpos);
+
+print time.time() - l;
 
 #Plotting final light curve.
 plt.clf();
