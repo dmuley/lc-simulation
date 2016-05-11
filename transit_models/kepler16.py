@@ -58,8 +58,8 @@ r.bodies[0].radius = 0.000477894503 * 0.7538;
 r.bodies[1] = OrbitingSystem();
 r.bodies[1].mass = 0.00001;
 r.bodies[1].semimajor = 1.;
-r.bodies[1].radius = 0.0000000001
-r.bodies[1].inclination = np.pi * 0.5
+r.bodies[1].radius = 0.0000000001;
+r.bodies[1].inclination = np.pi * 0.5;
 
 r.setTotalMass();
 
@@ -79,47 +79,15 @@ print " "
 print len(starPlanet.bodies[0].bodies);
 print " "
 
-final_x = [];
-final_y = [];
-final_z = [];
-final_array = []
-transit_array = [];
 
-#print starPlanet.bodies;
-
-#Flattening list of bodies (probably want a more general interpretation later for jagged array of bodies).
-
-for a in range(0, len(starPlanet.bodies)):
-	for b in range(0, len(starPlanet.bodies[a].bodies)):
-		print (a, b)
-		x = starPlanet.bodies[a].orbits[b][0] + starPlanet.orbits[a][0] - starPlanet.bodies[a].orbits[0][0] * 0 - starPlanet.orbits[0][0] * 0;
-		y = starPlanet.bodies[a].orbits[b][1] + starPlanet.orbits[a][1] - starPlanet.bodies[a].orbits[0][1] * 0 - starPlanet.orbits[0][1] * 0;
-		z = starPlanet.bodies[a].orbits[b][2] + starPlanet.orbits[a][2] - starPlanet.bodies[a].orbits[0][2] * 0 - starPlanet.orbits[0][2] * 0;
-		
-		final_array.append(np.array([x, y, z]));
-		final_x.append(x);
-		final_y.append(y);
-		final_z.append(z);
-
-		starPlanet.bodies[a].orbits[b][0] = x;
-		starPlanet.bodies[a].orbits[b][1] = y;
-		starPlanet.bodies[a].orbits[b][2] = z;
-		
-		transit_array.append(starPlanet.bodies[a].bodies[b]);
-		
-		plt.plot(times, y/np.absolute(y) * np.sqrt(x**2 + y**2), '-');
-		#plt.plot(x, y);
-plt.ylabel("Difference from mean (AU)");
-plt.xlabel("Time (days)");
-plt.title("Sky-projected deviation of bodies in planetary system from COM");
-plt.xlim(times[0], times[len(times) - 1]);
-plt.show();		
-
-l = time.time()
-
+#Getting positions relative to center of mass
+final_x, final_y, final_z, transit_array = gt.traverse_tree(starPlanet, times);	
+#Sorting by Z-position	
 fx, fy, fz, zpos = gt.sort_keys(final_x, final_y, final_z);
+#getting points of intersection to check for transit
 lb, intersects = gt.arrange_combinations(fx, fy, transit_array);
 
+l = time.time()
 n = 31;
 ta = transit_array;
 cadence, light_blocked = gt.generate_lightcurve(fx, fy, lb, intersects, n, ta, times, zpos);
