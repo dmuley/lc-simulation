@@ -19,6 +19,9 @@ import time;
 #OPERATING EXAMPLE TO RUN THIS CODE
 #FOR RETROGRADE ORBITS: Add pi radians to inclination, add pi radians to arg_periastron
 
+steps = 7501;
+revs = 0.125;
+
 starPlanet = OrbitingSystem();
 starPlanet.bodies = [0,0]
 
@@ -68,17 +71,11 @@ starPlanet.bodies[0], starPlanet.bodies[1] = q, r;
 starPlanet.setBaseTime();
 year = starPlanet.bt
 starPlanet.bodies[0].bt, starPlanet.bodies[1].bt = year, year;
-starPlanet.setSystemOrbits();
+starPlanet.setSystemOrbits(s = steps, r = revs);
 times = starPlanet.times;
 
-starPlanet.bodies[0].setSystemOrbits();
-starPlanet.bodies[1].setSystemOrbits();
-
-	
-print " "
-print len(starPlanet.bodies[0].bodies);
-print " "
-
+starPlanet.bodies[0].setSystemOrbits(s = steps, r = revs);
+starPlanet.bodies[1].setSystemOrbits(s = steps, r = revs);
 
 #Getting positions relative to center of mass
 final_x, final_y, final_z, transit_array = gt.traverse_tree(starPlanet, times);	

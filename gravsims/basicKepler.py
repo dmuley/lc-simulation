@@ -41,7 +41,7 @@ class OrbitingSystem:
 		base_time = getTrueAnomaly(self.bodies[0].mass, self.bodies[1].mass, self.bodies[1].semimajor, self.bodies[1].eccentricity)[1];
 		self.bt = base_time;
 				
-	def setSystemOrbits(self):
+	def setSystemOrbits(self, s = STEPS, r = REVOLUTIONS):
 		base_time = self.bt;
 		print len(self.bodies);
 		print base_time/86400;
@@ -54,7 +54,7 @@ class OrbitingSystem:
 			
 			print a[1]/(60 * 60 * 24);
 			
-			ot = getOrbitTimes(anom, t=base_time, phase = self.bodies[satellite].phase, scale_factor = base_time/time_taken); 
+			ot = getOrbitTimes(anom, t=base_time, phase = self.bodies[satellite].phase, scale_factor = base_time/time_taken, STEPS=s, REVOLUTIONS = r); 
 			self.times = ot[0];
 			#gets a time- and phase- dependent set of radii and angles, needed eventually for transits
 			q = computeOrbit(self.bodies[0].mass, self.bodies[satellite].mass, self.bodies[satellite].semimajor, self.bodies[satellite].eccentricity, ot[1], ot[2]);
@@ -95,7 +95,7 @@ def getTrueAnomaly(m1, m2, a, e):
 		
 	return (true_anomaly, t);
 				
-def getOrbitTimes(true_anomaly, t, phase = 0, scale_factor = 1):
+def getOrbitTimes(true_anomaly, t, phase = 0, scale_factor = 1, STEPS = STEPS, REVOLUTIONS = REVOLUTIONS):
 	#equal areas in equal times --> dA ~ dt
 	#making sure that times do not become slightly asynchronous due to floating point error, need our dAs right.
 

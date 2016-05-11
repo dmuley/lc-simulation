@@ -63,6 +63,7 @@ def sort_keys(final_x, final_y, final_z):
 	fz = np.array(final_z).T;
 
 	zpos = np.argsort(fz);
+	print len(zpos)
 	
 	return fx, fy, fz, zpos;
 
