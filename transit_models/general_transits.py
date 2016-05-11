@@ -15,24 +15,17 @@ import itertools;
 from integrators.polarIntegrator3 import *;
 
 def traverse_tree(starPlanet, times):
-	""" Starting off with a base case, this algorithm traces the entire tree of orbits
+	""" 	Starting off with a base case, this algorithm traces the entire tree of orbits
 		to an arbitrary depth in order to obtain final x, y, and z-positions of every
-		body in the system. A more elegant and natural interpretation than the previous
-		forced model will be added later. """
-	
-	final_x, final_y, final_z = [], [], [];
-	transit_array = [];
-		
-	"""
-
-	UNTESTED JAGGED ALGORITHM. DO NOT USE.
+		body in the system. This is much more elegant and natural than the previous
+		forced method of tree-tracing, which would not have worked for jagged arrays. """
 
 	final_x = [np.zeros(len(times))];
 	final_y = [np.zeros(len(times))];
 	final_z = [np.zeros(len(times))];
 	transit_array = [starPlanet];
 
-	indices_array = np.array([0]);
+	indices_array = np.array([0]).astype('int');
 	#local_indices_array = np.array([0]);
 	
 	position = 0;
@@ -50,13 +43,11 @@ def traverse_tree(starPlanet, times):
 				#local_indices_array = np.append(local_indices_array, np.arange(0,len(transit_array[v].orbits));
 
 		position += length - position;
-
-	m = 0:
 	
-	valid_search_indices = np.array([]);
+	valid_search_indices = np.array([]).astype('int');
 
 	for item in range(0,len(transit_array)):
-		if (transit_array[item].bodies != []):
+		if (transit_array[item].bodies == []):
 			valid_search_indices = np.append(valid_search_indices, item);
 
 	for ind in valid_search_indices:
@@ -64,44 +55,26 @@ def traverse_tree(starPlanet, times):
 		while (newpos != 0):
 			newpos = indices_array[newpos];
 
-			final_x[ind] += final_x[newpos];
-			final_y[ind] += final_y[newpos];
-			final_z[ind] += final_z[newpos];
+			final_x[int(ind)] += final_x[int(newpos)];
+			final_y[int(ind)] += final_y[int(newpos)];
+			final_z[int(ind)] += final_z[int(newpos)];
 	
-	final_x = final_x[valid_search_indices];
-	final_y = final_y[valid_search_indices];
-	final_z = final_z[valid_search_indices];
-	transit_array = transit_array[valid_search_indices]; """
+	final_x = np.array(final_x)[valid_search_indices];
+	final_y = np.array(final_y)[valid_search_indices];
+	final_z = np.array(final_z)[valid_search_indices];
 
-	
-	for a in range(0, len(starPlanet.bodies)):
-		for b in range(0, len(starPlanet.bodies[a].bodies)):
-			print (a, b)
-			x = starPlanet.bodies[a].orbits[b][0] + starPlanet.orbits[a][0];
-			y = starPlanet.bodies[a].orbits[b][1] + starPlanet.orbits[a][1];
-			z = starPlanet.bodies[a].orbits[b][2] + starPlanet.orbits[a][2];
-		
-			final_x.append(x);
-			final_y.append(y);
-			final_z.append(z);
+	taf = [transit_array[f] for f in valid_search_indices];
 
-			starPlanet.bodies[a].orbits[b][0] = x;
-			starPlanet.bodies[a].orbits[b][1] = y;
-			starPlanet.bodies[a].orbits[b][2] = z;
-		
-			transit_array.append(starPlanet.bodies[a].bodies[b]);
-		
-			plt.plot(times, y/np.absolute(y) * np.sqrt(x**2 + y**2), '-');
+	for uv in range(0,len(final_x)):
+		plt.plot(times, final_y[uv]/np.absolute(final_y[uv]) * np.sqrt(final_x[uv]**2 + final_y[uv]**2), '-');
 
-	plt.ylabel("Difference from mean (AU)");
-	plt.xlabel("Time (days)");
-	plt.title("Sky-projected deviation of bodies in planetary system from COM");
-	plt.xlim(times[0], times[len(times) - 1]);
-	plt.show();
-	
-	return final_x, final_y, final_z, transit_array;
-	
-				
+        plt.ylabel("Difference from mean (AU)");
+        plt.xlabel("Time (days)");
+        plt.title("Sky-projected deviation of bodies in planetary system from COM");
+        plt.xlim(times[0], times[len(times) - 1]);
+        plt.show();
+
+	return final_x, final_y, final_z, taf;
 	
 ###### LOOM ALGORITHM ######
 # Using the Z-values we will index the orders of X and Y values, and then get transits for each body.
