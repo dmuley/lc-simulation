@@ -46,7 +46,6 @@ q.setTotalMass();
 
 #Masses of planetary system
 r = OrbitingSystem();
-#r.mass = 317.83 * 0.333;
 r.semimajor = 0.7048;
 r.eccentricity = 0.0069;
 r.inclination = np.pi * 90./180.;
