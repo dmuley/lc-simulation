@@ -19,11 +19,60 @@ def traverse_tree(starPlanet, times):
 		to an arbitrary depth in order to obtain final x, y, and z-positions of every
 		body in the system. A more elegant and natural interpretation than the previous
 		forced model will be added later. """
+	
+	final_x, final_y, final_z = [], [], [];
+	transit_array = [];
 		
-	final_x = [];
-	final_y = [];
-	final_z = [];
-	transit_array = [];	
+	"""
+
+	UNTESTED JAGGED ALGORITHM. DO NOT USE.
+
+	final_x = [np.zeros(len(times))];
+	final_y = [np.zeros(len(times))];
+	final_z = [np.zeros(len(times))];
+	transit_array = [starPlanet];
+
+	indices_array = np.array([0]);
+	#local_indices_array = np.array([0]);
+	
+	position = 0;
+	for u in range(0,5):
+		#Have to do a few test runs to ensure that all layers processed.
+		length = len(transit_array);
+		for v in range(position, length):
+			if (transit_array[v].bodies != []):
+				transit_array.extend(transit_array[v].bodies);
+				final_x.extend(np.array([transit_array[v].orbits[a][0] for a in range(0, len(transit_array[v].orbits))]));
+				final_y.extend(np.array([transit_array[v].orbits[b][1] for b in range(0, len(transit_array[v].orbits))]));
+				final_z.extend(np.array([transit_array[v].orbits[c][2] for c in range(0, len(transit_array[v].orbits))]));
+
+				indices_array = np.append(indices_array, np.ones(len(transit_array[v].orbits)) * v);
+				#local_indices_array = np.append(local_indices_array, np.arange(0,len(transit_array[v].orbits));
+
+		position += length - position;
+
+	m = 0:
+	
+	valid_search_indices = np.array([]);
+
+	for item in range(0,len(transit_array)):
+		if (transit_array[item].bodies != []):
+			valid_search_indices = np.append(valid_search_indices, item);
+
+	for ind in valid_search_indices:
+		newpos = ind;
+		while (newpos != 0):
+			newpos = indices_array[newpos];
+
+			final_x[ind] += final_x[newpos];
+			final_y[ind] += final_y[newpos];
+			final_z[ind] += final_z[newpos];
+	
+	final_x = final_x[valid_search_indices];
+	final_y = final_y[valid_search_indices];
+	final_z = final_z[valid_search_indices];
+	transit_array = transit_array[valid_search_indices]; """
+
 	
 	for a in range(0, len(starPlanet.bodies)):
 		for b in range(0, len(starPlanet.bodies[a].bodies)):
