@@ -4,8 +4,8 @@ from scipy.optimize import fsolve;
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-STEPS = 17501;
-REVOLUTIONS = 0.125;
+STEPS = 10000; #should always be an int
+REVOLUTIONS = 1.; #should always be a float
 
 class OrbitingSystem:
 	"""	OrbitingSystem has a wide range of attributes that correspond
@@ -28,13 +28,18 @@ class OrbitingSystem:
 	#add more orbiting systems in, with mass of 0
 	#list the most massive body in the system first
 	mass = 0;
+	"""Earth masses"""
 	semimajor = 0;
+	"""AU"""
 	arg_periastron = 0;
 	inclination = 0;
-	eccentricity = 0;
 	phase = 0;
+	"""Radians"""
+	eccentricity = 0;
 	radius = 0;
+	"""AU"""
 	temperature = 0;
+	"""Arbitrary units"""
 	
 	bt = 1;
 	
@@ -96,7 +101,8 @@ class OrbitingSystem:
 def getMeanAnomaly(m1, m2, a, e):
 	"""Obtains the mean anomaly (circularized change in angle) as a function of the true
 	angular anomaly. Requires solving Kepler's equation, which is seen in mean_anomaly
-	subfunction."""
+	child function. Often times, fsolve is the slowest link in the chain, but problems are
+	negligible even on a large scale."""
 
 	#Masses of each body are in Earth masses
 	
@@ -118,8 +124,11 @@ def getMeanAnomaly(m1, m2, a, e):
 	return (mean_anomaly, t);
 				
 def getOrbitTimes(mean_anomaly, t, phase = 0, scale_factor = 1, STEPS = STEPS, REVOLUTIONS = REVOLUTIONS):
-	"""Uses Kepler's second law of equal areas in equal times (which is true of the mean anomaly) in order to
-	calculate the time at which a body has a particular true anomaly."""
+	"""Uses Kepler's Second Law of equal areas in equal times (which is true of the mean anomaly) in order to
+	calculate the time at which a body has a given true anomaly. This is then used, along with the orbital radius
+	at that true anomaly, to determine the shape of the orbit.
+
+	Performs rounding to ensure that the right number of timesteps is used."""
 	#equal areas in equal times --> dA ~ dt
 	#making sure that times do not become slightly asynchronous due to floating point error, need our dAs right.
 
@@ -157,7 +166,7 @@ def computeOrbit(m1, m2, a, e, theta_m1, theta_m2):
 	return np.array([r1, r2]);
 	
 def transformOrbit(r, theta, inclination, arg_periastron):
-	"""Transforms the body according to inclination and argument of periastron."""
+	"""Transforms the orbit according to inclination and argument of periastron."""
 	xa0 = r * np.cos(theta)
 	ya0 = r * np.sin(theta)
 	
@@ -207,6 +216,3 @@ def plot_orbit(a, args):
 	ax.set_zlim(-l, l);
 	
 	fig.show();
-
-
-	
