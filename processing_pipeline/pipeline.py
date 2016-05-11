@@ -2,6 +2,7 @@ import numpy as np
 from sklearn import gaussian_process
 import astropy
 
+from scipy.io import readsav as rs
 from astropy.io import fits
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -18,6 +19,16 @@ def import_data(filename):
 	
 	return np.array([ca, sf]);
 	
+def import_idl(filename = '../../../Data/K16/kic126corr_n.sav'):
+	idlfile = rs(filename);
+	flux = idlfile['flux'];
+	cadence = idlfile['time'];
+
+	for a in np.unique(idlfile['cont']): #data quarter
+		flux[idlfile['cont'] == a] /= np.average(flux[idlfile['cont'] == a]);
+
+	return cadence, flux;
+
 def data_folder(data, period, cadence_period=58.84876 * 30):
 	modulus = (period * 3600. * 24./cadence_period);
 	print modulus;

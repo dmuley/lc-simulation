@@ -1,26 +1,27 @@
-if __name__ == '__main__':
-    if __package__ is None:
-		import sys
-		from os import path
-		sys.path.append( path.dirname( path.dirname( path.abspath(__file__) ) ) );
-		print sys.path[-1];
-		from gravsims.basicKepler import *;
-		from integrators.polarIntegrator3 import *;
-    else:
-		from ..gravsims.basicKepler import *;
-                from integrators.polarIntegrator3 import *;
+if __package__ is None:
+	import sys;
+	from os import path;
+	sys.path.append( path.dirname( path.dirname( path.abspath(__file__) ) ) );
+	print sys.path[-1];
+	from gravsims.basicKepler import *;
 	
+else:
+	from ..gravsims.basicKepler import *;
+
 import numpy as np;
 from itertools import chain;
 import matplotlib.pyplot as plt;
 import general_transits as gt;
 import time;
 
-#OPERATING EXAMPLE TO RUN THIS CODE
+
+################################################
+######## PLACE ALL PLANETARY DATA HERE  ########
+################################################
 #FOR RETROGRADE ORBITS: Add pi radians to inclination, add pi radians to arg_periastron
 
 steps = 7501;
-revs = 0.125;
+revs = 0.25;
 
 starPlanet = OrbitingSystem();
 starPlanet.bodies = [0,0]
@@ -64,6 +65,10 @@ r.bodies[1].radius = 0.0000000001;
 r.bodies[1].inclination = np.pi * 0.5;
 
 r.setTotalMass();
+
+################################################
+########### END PLANETARY DATA HERE  ###########
+################################################
 
 #Normalizing times of each body
 starPlanet.bodies[0], starPlanet.bodies[1] = q, r;
