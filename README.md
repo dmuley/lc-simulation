@@ -15,7 +15,6 @@ The processing\_pipeline folder contains an earlier pipeline that works only for
 
 + Make further optimizations and accuracy adjustments in the code (use numpy wherever possible, unroll excessively deep/long loops, etc.)
 + Comment code in-depth to make usage and understanding easier.
-+ Process jagged OrbitingSystem arrays without using dummy planets or moons.
 + Produce professional-quality visualizations to demonstrate working of program.
 + Test against detrended light-curves from _Kepler_ space telescope in order to ensure veracity of algorithm.
 
