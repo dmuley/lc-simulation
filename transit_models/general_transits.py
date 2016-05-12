@@ -144,6 +144,8 @@ def generate_lightcurve(fx, fy, light_blocked, intersects, n, ta, times, zpos):
 		#Need >0.1 because some bodies without any intersections are noted to have -0 intersections (off by some epsilon).
 		c = np.array([[ta[r].radius * 1000., fx[m][r] * 1000., fy[m][r] * 1000.] for r in zpos[m]])[intersects.T[m][zpos[m]] > 0.1];
 		lum = np.array([ta[s].temperature for s in zpos[m]])[intersects.T[m][zpos[m]] > 0.1];
+		ldc = np.array([ta[s].ld_coeffs for s in zpos[m]])[intersects.T[m][zpos[m]] > 0.1];
+		ldp = np.array([ta[s].ld_powers for s in zpos[m]])[intersects.T[m][zpos[m]] > 0.1];
 	
 		t = 0.;
 	
@@ -158,7 +160,7 @@ def generate_lightcurve(fx, fy, light_blocked, intersects, n, ta, times, zpos):
 			if not ((ti[1] % np.pi) < np.zeros(len(ti[1])) + 0.01).all():
 				rt = generateRadiiThetas(n, ti[0], ti[1], ti[2]);
 				f = rd2(rt, ct, opt = 0);
-				oh = groupAndIntegrate(bounds = f, num = n, star_rad = ct[0][0], ld_coeff = [1.9, 0., 1., 0.], ld_power = [0.0, 0.5, 1., 1.5]);
+				oh = groupAndIntegrate(bounds = f, num = n, star_rad = ct[0][0], ld_coeff = ldc[i], ld_power = ldp[i]);
 			
 				del rt, f;
 				oh *= lum[i]

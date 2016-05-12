@@ -19,13 +19,25 @@ def import_data(filename):
 	
 	return np.array([ca, sf]);
 	
-def import_idl(filename = '../../../Data/K16/kic126corr_n.sav'):
+def import_idl(filename = '../../../Data/K16/kic126corr_n.sav', num = 400):
 	idlfile = rs(filename);
-	flux = idlfile['flux'];
-	cadence = idlfile['time'];
+	ident = np.array(idlfile['cont']).astype('int');
+	flux = np.array(idlfile['flux']).astype('float64');
+	cadence = np.array(idlfile['time']).astype('float64');
 
-	for a in np.unique(idlfile['cont']): #data quarter
-		flux[idlfile['cont'] == a] /= np.average(flux[idlfile['cont'] == a]);
+	for a in np.unique(ident): #data quarter
+		mean = np.average(flux[idlfile['cont'] == a]);
+		data = [cadence[idlfile['cont'] == a], flux[idlfile['cont'] == a]];
+		print len(data[0]), len(data[1]);
+		k =  movavg_final(data, num);
+		#print k
+		for s in range(0,len(k)):
+			#print float(k[s])
+			flux[np.where(idlfile['cont'] == a)[0][s]] -= float(k[s]);
+
+		#[flux[idlfile['cont'] == a][s] -= k[s] for s in range(0,len(k))];
+		#gp2(np.array([cadence[idlfile['cont'] == a], flux[idlfile['cont'] == a]]), block_size = 2000)[2];
+		flux[idlfile['cont'] == a] /= mean;
 
 	return cadence, flux;
 
@@ -92,11 +104,15 @@ def ema(data, hl=2):
 	return np.array([data[0], (data[1] - avg)]);
 	
 def movavg_final(data, movavg_period):
+	#print data[1]
 	a = pd.rolling_mean(data[1], movavg_period)
 	b = pd.rolling_mean(data[1][::-1], movavg_period)[::-1]
 	avg = (a + b)/2
 
-	return np.array([data[0][movavg_period:len(avg) - movavg_period], avg[movavg_period:len(avg) - movavg_period]])
+	avg[0:movavg_period] = b[0:movavg_period];
+	avg[len(avg) - movavg_period:len(avg)] = a[len(avg) - movavg_period:len(avg)]
+
+	return avg;
 
 def full_pipeline(star_id = "kplr011904151", cad = "llc", per = 0.837495):
 	#SAMPLE CODE THAT RUNS ALL OF THIS.

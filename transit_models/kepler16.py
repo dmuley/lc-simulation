@@ -34,6 +34,8 @@ q.bodies[0] = OrbitingSystem()
 q.bodies[0].mass = 332946. * 0.6897;
 q.bodies[0].temperature = 0.985;
 q.bodies[0].radius = 0.6489 * 0.00464913034;
+q.bodies[0].ld_coeffs = [2.2,0,1.0,0];
+q.bodies[0].ld_powers = [0.0, 0.5, 1.0, 1.5];
 
 q.bodies[1] = OrbitingSystem();
 q.bodies[1].mass = 332946. * 0.20255;

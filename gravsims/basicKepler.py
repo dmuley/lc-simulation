@@ -43,6 +43,8 @@ class OrbitingSystem:
 	
 	bt = 1;
 	
+	ld_coeffs = [1];
+	ld_powers = [0];
 	bodies = [];
 	orbits = [np.array([])];
 	times = [];
