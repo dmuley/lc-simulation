@@ -4,18 +4,19 @@ The Kepler Generalized Light Curve Simulation computes light output with respect
 
 The processing\_pipeline folder contains an earlier pipeline that works only for a single-planet, single-star case. This code can be run out-of-the-box but is slow and of limited capability. As of now, the nested-Keplerian code has been updated to interface directly with the light-curve integrator, meaning that it is possible to create usable and physically accurate light curves. In order to do this, please write a script along the lines of kepler16.py (the calls to general\_transit.py can remain the same). *I do not recommend using an integration step number below 30* due to jittering on the right-hand side, although lower numbers can be used for sanity checks.
 
+![Kepler-16 sim](selected_images/light_curves/pred_vs_detrend.png?raw=true)
+
 ##Features
 
 + Seamless transition from nested-Keplerian to integrator. Optimize selections of planets and stars for integration (does not calculate light curves of planets) to ensure minimal computation time. 
 + Low jittering on the right-hand-side (-pi/2 < theta < pi/2) of a star.
 + Works with a wide range of limb-darkening laws.
-+ Retrograde orbits (add pi radians to inclination and argument of periastron).
++ Allows any closed Keplerian orbit, including retrograde (add pi radians to inclination and argument of periastron).
 
 ##Todo
 
 + Make further optimizations and accuracy adjustments in the code (use numpy wherever possible, unroll excessively deep/long loops, etc.)
 + Produce professional-quality visualizations to demonstrate working of program.
-+ Test against detrended light-curves from _Kepler_ space telescope in order to ensure veracity of algorithm.
 + Markov Chain Monte Carlo (MCMC) algorithm to find planet transits from data.
 
 For a more complete and up-to-date list of issues, please look at the Issues tab, and add in any issues that you notice.

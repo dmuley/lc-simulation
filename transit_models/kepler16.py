@@ -21,7 +21,7 @@ import time;
 #FOR RETROGRADE ORBITS: Add pi radians to inclination, add pi radians to arg_periastron
 
 steps = 7501;
-revs = 1.25;
+revs = 0.25;
 
 starPlanet = OrbitingSystem();
 starPlanet.bodies = [0,0]
@@ -44,9 +44,9 @@ q.bodies[1].semimajor = 1. * 0.22431;
 q.bodies[1].temperature = 0.015;
 q.bodies[1].inclination = np.pi * 90./180.
 q.bodies[1].radius = 0.22623 * 0.00464913034;
-q.bodies[1].phase = -np.pi/8.;
+q.bodies[1].phase = -np.pi/8 + np.pi/30.;
 q.bodies[1].eccentricity = 0.15944;
-q.bodies[1].arg_periastron = np.pi/2.
+q.bodies[1].arg_periastron = -np.pi/30;
 
 q.setTotalMass();
 
@@ -55,7 +55,7 @@ r = OrbitingSystem();
 r.semimajor = 0.7048;
 r.eccentricity = 0.0069;
 r.inclination = np.pi * 90./180.;
-r.phase = np.pi * -30./180.
+r.phase = np.pi * -20./180.
 
 r.bodies = [0, 0];
 r.bodies[0] = OrbitingSystem();
