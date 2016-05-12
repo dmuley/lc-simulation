@@ -2,6 +2,7 @@ import numpy as np
 from sklearn import gaussian_process
 import astropy
 
+from scipy.signal import argrelmin
 from scipy.io import readsav as rs
 from astropy.io import fits
 import matplotlib.pyplot as plt
@@ -30,14 +31,18 @@ def import_idl(filename = '../../../Data/K16/kic126corr_n.sav', num = 400):
 		data = [cadence[idlfile['cont'] == a], flux[idlfile['cont'] == a]];
 		print len(data[0]), len(data[1]);
 		k =  movavg_final(data, num);
-		#print k
-		for s in range(0,len(k)):
-			#print float(k[s])
-			flux[np.where(idlfile['cont'] == a)[0][s]] -= float(k[s]);
+		
+		flux[np.where(idlfile['cont'] == a)[0]] -= k.astype('float64');
 
-		#[flux[idlfile['cont'] == a][s] -= k[s] for s in range(0,len(k))];
 		#gp2(np.array([cadence[idlfile['cont'] == a], flux[idlfile['cont'] == a]]), block_size = 2000)[2];
 		flux[idlfile['cont'] == a] /= mean;
+
+	arm = argrelmin(flux)[0];
+	arm = arm[flux[arm] < -0.005]
+	for u in arm:
+		fluxbase = flux[max(0,u - int(num)):min(len(flux), u + int(num))];
+		fluxbase_mean = np.average(fluxbase[fluxbase > 0])
+		flux[max(0,u - int(num)):min(len(flux), u + int(num))] -= fluxbase_mean;
 
 	return cadence, flux;
 
@@ -145,5 +150,10 @@ def full_pipeline(star_id = "kplr011904151", cad = "llc", per = 0.837495):
 	
 	return t
 
-		
-	
+def mean_confidence_interval(data, confidence=0.95):
+	"""shasan, http://stackoverflow.com/questions/15033511/compute-a-confidence-interval-from-sample-data """
+	a = 1.0*np.array(data)
+	n = len(a)
+	m, se = np.mean(a), scipy.stats.sem(a)
+	h = se * sp.stats.t._ppf((1+confidence)/2., n-1)
+	return m, m-h, m+h	

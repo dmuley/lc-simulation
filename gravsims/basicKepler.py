@@ -90,9 +90,9 @@ class OrbitingSystem:
 			
 			#find out if += works for NumPy arrays, highly doubt so
 			#mathematically: seems legit?
-			basemass_x = basemass_x + base_xyz[0];
-			basemass_y = basemass_y + base_xyz[1];
-			basemass_z = basemass_z + base_xyz[2];
+			basemass_x += base_xyz[0];
+			basemass_y += base_xyz[1];
+			basemass_z += base_xyz[2];
 			
 			planet_xyz = transformOrbit(q[1], ot[2], self.bodies[satellite].inclination, self.bodies[satellite].arg_periastron);
 			self.orbits[satellite] = (np.array(planet_xyz)/149597870700.);
@@ -169,17 +169,21 @@ def computeOrbit(m1, m2, a, e, theta_m1, theta_m2):
 	
 def transformOrbit(r, theta, inclination, arg_periastron):
 	"""Transforms the orbit according to inclination and argument of periastron."""
-	xa0 = r * np.cos(theta)
-	ya0 = r * np.sin(theta)
+	x0 = r * np.cos(theta)
+	y0 = r * np.sin(theta)
 	
-	xa = xa0 * np.cos(inclination);
+	'''xa = xa0 * np.cos(inclination);
 	ya = ya0
 	
 	z = xa0 * np.sin(inclination);	
-
-	x = xa * np.cos(arg_periastron) - ya * np.sin(arg_periastron);
-	y = xa * np.sin(arg_periastron) + ya * np.cos(arg_periastron);
+	'''
+	x = x0 * np.cos(arg_periastron) - y0 * np.sin(arg_periastron);
+	y = x0 * np.sin(arg_periastron) + y0 * np.cos(arg_periastron);
 	
+	x *= np.cos(inclination);
+        z = x * np.sin(inclination);
+
+
 	return x, y, z;
 
 def whole_orbit(m1, m2, a, e, arg_periastron, inclination=0):
