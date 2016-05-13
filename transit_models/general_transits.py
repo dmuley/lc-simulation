@@ -68,6 +68,11 @@ def traverse_tree(starPlanet, times):
 
 	taf = [transit_array[f] for f in valid_search_indices];
 
+	return final_x, final_y, final_z, taf;
+
+def plot_distances(final_x, final_y, times):
+	"""For each body in the system, plots the distance from the center of mass as a function of time.
+	Normalizes the values so that when the body is lefto f the star, its distance appears negative."""
 	for uv in range(0,len(final_x)):
 		plt.plot(times, final_y[uv]/np.absolute(final_y[uv]) * np.sqrt(final_x[uv]**2 + final_y[uv]**2), '-');
 
@@ -76,8 +81,6 @@ def traverse_tree(starPlanet, times):
         plt.title("Sky-projected deviation of bodies in planetary system from COM");
         plt.xlim(times[0], times[len(times) - 1]);
         plt.show();
-
-	return final_x, final_y, final_z, taf;
 	
 ###### LOOM ALGORITHM ######
 # Using the Z-values we will index the orders of X and Y values, and then get transits for each body.
@@ -122,7 +125,7 @@ def arrange_combinations(fx, fy, transit_array):
 
 	light_blocked = np.zeros(len(fx));
 	
-	return light_blocked, intersects;
+	return light_blocked, intersects.T;
 
 #### ACTUAL TRANSIT MODELING BELOW ####
 
@@ -142,10 +145,10 @@ def generate_lightcurve(fx, fy, light_blocked, intersects, n, ta, times, zpos):
 	for m in range(0,len(light_blocked)):
 		#Excluding bodies that do not intersect at this frame
 		#Need >0.1 because some bodies without any intersections are noted to have -0 intersections (off by some epsilon).
-		c = np.array([[ta[r].radius * 1000., fx[m][r] * 1000., fy[m][r] * 1000.] for r in zpos[m]])[intersects.T[m][zpos[m]] > 0.1];
-		lum = np.array([ta[s].temperature for s in zpos[m]])[intersects.T[m][zpos[m]] > 0.1];
-		ldc = np.array([ta[s].ld_coeffs for s in zpos[m]])[intersects.T[m][zpos[m]] > 0.1];
-		ldp = np.array([ta[s].ld_powers for s in zpos[m]])[intersects.T[m][zpos[m]] > 0.1];
+		c = np.array([[ta[r].radius * 1000., fx[m][r] * 1000., fy[m][r] * 1000.] for r in zpos[m]])[intersects[m][zpos[m]] > 0.1];
+		lum = np.array([ta[s].temperature for s in zpos[m]])[intersects[m][zpos[m]] > 0.1];
+		ldc = np.array([ta[s].ld_coeffs for s in zpos[m]])[intersects[m][zpos[m]] > 0.1];
+		ldp = np.array([ta[s].ld_powers for s in zpos[m]])[intersects[m][zpos[m]] > 0.1];
 	
 		t = 0.;
 	
@@ -172,4 +175,3 @@ def generate_lightcurve(fx, fy, light_blocked, intersects, n, ta, times, zpos):
 	
 	lb_2 = light_blocked
 	return times, lb_2;
-

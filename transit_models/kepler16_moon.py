@@ -14,14 +14,14 @@ from itertools import chain;
 import matplotlib.pyplot as plt;
 import general_transits as gt;
 import time;
-
+from scipy.stats import chisquare;
 
 ################################################
 ######## PLACE ALL PLANETARY DATA HERE  ########
 ################################################
 #FOR RETROGRADE ORBITS: Add pi radians to inclination, add pi radians to arg_periastron
 
-steps = 7501;
+steps = 15001;
 revs = 0.25;
 
 starPlanet = OrbitingSystem();
@@ -65,10 +65,11 @@ r.bodies[0].radius = 0.000477894503 * 0.7538;
 
 #Nominal moon
 r.bodies[1] = OrbitingSystem();
-r.bodies[1].mass = 0.00001;
-r.bodies[1].semimajor = 1.;
-r.bodies[1].radius = 0.0000000001;
-r.bodies[1].inclination = np.pi * 0.5;
+r.bodies[1].mass = 1.;
+r.bodies[1].semimajor = 0.0075;
+r.bodies[1].radius = 0.000477894503 * 0.0892141778;
+#r.bodies[1].inclination = np.pi * 0.5;
+r.bodies[1].phase = -np.pi/3.;
 
 r.setTotalMass();
 
@@ -89,33 +90,36 @@ starPlanet.bodies[1].setSystemOrbits(s = steps, r = revs);
 
 #Getting positions relative to center of mass
 final_x, final_y, final_z, transit_array = gt.traverse_tree(starPlanet, times);	
+gt.plot_distances(final_x, final_y, times);
+
 #Sorting by Z-position	
 fx, fy, fz, zpos = gt.sort_keys(final_x, final_y, final_z);
+fx2,fy2,fz2,zpos2= gt.sort_keys(final_x[:-1], final_y[:-1], final_z[:-1]);
+
 #getting points of intersection to check for transit
 lb, intersects = gt.arrange_combinations(fx, fy, transit_array);
+lb2, intersects2 = gt.arrange_combinations(fx2, fy2, transit_array[:-1]);
 
 l = time.time()
 n = 31;
 ta = transit_array;
 cadence, light_blocked = gt.generate_lightcurve(fx, fy, lb, intersects, n, ta, times, zpos);
+cadence2, light_blocked_2 = gt.generate_lightcurve(fx2, fy2, lb2, intersects2,n, ta[:-1], times, zpos2);
 
-print "Time to compute transit: ",
+print "Time to compute transits ",
 print time.time() - l;
 
-v = import_idl(num=100);
-
 plt.clf();
-plt.plot(v[0][(v[0] > 55414.77)][:7501]-55414.77, v[1][v[0] > 55414.77][:7501], 'r.')
-plt.plot(cadence, -light_blocked, 'b')
+
+plt.plot(cadence, light_blocked-light_blocked_2,   'b')
+#plt.plot(cadence, -light_blocked_2, 'r');
 plt.xlim(cadence[0], cadence[-1])
+
 plt.xlabel("Time (days)")
 plt.ylabel("Fraction of light blocked")
 plt.title("Predicted transits of Kepler-16 versus actual detrended data")
+
 plt.show();
 
-"""
-#Plotting final light curve.
-plt.clf();
-plt.plot(cadence, -light_blocked, '-');
-plt.xlim(cadence[0], cadence[len(times) - 1]);
-plt.show();"""
+chisquare = (light_blocked_2 - light_blocked)**2
+print "Chi-squared: " + str(np.sum(chisquare));
