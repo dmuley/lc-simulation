@@ -5,7 +5,7 @@ The Kepler Generalized Light Curve Simulation computes light output with respect
 The processing\_pipeline folder contains an earlier pipeline that works only for a single-planet, single-star case. This code can be run out-of-the-box but is slow and of limited capability. As of now, the nested-Keplerian code has been updated to interface directly with the light-curve integrator, meaning that it is possible to create usable and physically accurate light curves. In order to do this, please write a script along the lines of kepler16.py (the calls to general\_transit.py can remain the same). *I do not recommend using an integration step number below 30* due to jittering on the right-hand side, although lower numbers can be used for sanity checks.
 
 ![Kepler-16 sim](selected_images/light_curves/pred_vs_detrend.png?raw=true)
-![Kepler-16 moon residual](selected_images/light_curves/kepler16_earthsized_moon.png)
+![Kepler-16 moon residual](selected_images/light_curves/diff_light_blocked_moon_kepler16.png?raw=true)
 
 ##Features
 

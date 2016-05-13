@@ -87,11 +87,8 @@ times = starPlanet.times;
 starPlanet.bodies[0].setSystemOrbits(s = steps, r = revs);
 starPlanet.bodies[1].setSystemOrbits(s = steps, r = revs);
 
-#Getting positions relative to center of mass
 final_x, final_y, final_z, transit_array = gt.traverse_tree(starPlanet, times);	
-#Sorting by Z-position	
 fx, fy, fz, zpos = gt.sort_keys(final_x, final_y, final_z);
-#getting points of intersection to check for transit
 lb, intersects = gt.arrange_combinations(fx, fy, transit_array);
 
 l = time.time()
@@ -112,10 +109,3 @@ plt.xlabel("Time (days)")
 plt.ylabel("Fraction of light blocked")
 plt.title("Predicted transits of Kepler-16 versus actual detrended data")
 plt.show();
-
-"""
-#Plotting final light curve.
-plt.clf();
-plt.plot(cadence, -light_blocked, '-');
-plt.xlim(cadence[0], cadence[len(times) - 1]);
-plt.show();"""
