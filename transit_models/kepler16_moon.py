@@ -180,7 +180,9 @@ cadence2, light_blocked2 = gt.generate_lightcurve(fx2, fy2, lb2, intersects, n, 
 
 print "Time to compute transit: ",
 print time.time() - l;
-#print cadence2 == cadence
+print "Chi-squared: ", 
+print np.sum((light_blocked - light_blocked2)**2)
+
 
 plt.clf();
 plt.plot(cadence, -light_blocked + 1., 'b')
