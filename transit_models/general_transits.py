@@ -113,7 +113,7 @@ def arrange_combinations(fx, fy, transit_array):
 	ta_combos = itertools.combinations(list(ta_elements), 2);
 	intersects = (fx * 0).T;
 
-	print len(ta_elements), len(intersects);
+	#print len(ta_elements), len(intersects);
 
 	for a in ta_combos:
 		if (transit_array[a[0]].temperature != 0) or (transit_array[a[1]].temperature != 0):
@@ -169,7 +169,7 @@ def generate_lightcurve(fx, fy, light_blocked, intersects, n, ta, times, zpos):
 				oh *= lum[i]
 				t += oh;
 				
-		print str(times[m]) + "\t" + str(t);
+		#print str(times[m]) + "\t" + str(t);
 	
 		light_blocked[m] = t;
 	

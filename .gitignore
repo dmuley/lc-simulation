@@ -4,4 +4,4 @@
 *.swp
 .DS_Store
 .misc
-.old
+.old*

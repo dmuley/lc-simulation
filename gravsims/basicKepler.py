@@ -71,7 +71,7 @@ class OrbitingSystem:
 
 		base_time = self.bt;
 		print len(self.bodies);
-		print base_time/86400;
+		#print base_time/86400;
 		basemass_x, basemass_y, basemass_z = 0, 0, 0;
 		self.orbits = list(np.zeros(len(self.bodies)));
 		for satellite in range(1, len(self.bodies)):
