@@ -59,8 +59,8 @@ r.bodies[0].radius = 0.000477894503 * 0.7538;
 r.bodies[1] = OrbitingSystem();
 r.bodies[1].mass = 1.;
 r.bodies[1].semimajor = 0.005;
-r.bodies[1].radius = 0.000477894503 * 0.7538 * 0.0892141778;
-r.bodies[1].phase = np.pi/3.;
+r.bodies[1].radius = 0.000477894503 * 0.0892141778;
+r.bodies[1].phase = -np.pi/3.;
 
 r.setTotalMass();
 

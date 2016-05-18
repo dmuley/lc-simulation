@@ -169,7 +169,7 @@ def generate_lightcurve(fx, fy, light_blocked, intersects, n, ta, times, zpos):
 				oh *= lum[i]
 				t += oh;
 				
-		#print str(times[m]) + "\t" + str(t);
+		print str(times[m]) + "\t" + str(t);
 	
 		light_blocked[m] = t;
 	

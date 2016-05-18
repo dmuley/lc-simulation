@@ -65,7 +65,7 @@ r.bodies[1] = OrbitingSystem();
 r.bodies[1].mass = 0.00001;
 r.bodies[1].semimajor = 1.;
 r.bodies[1].radius = 0.0000000001;
-r.bodies[1].inclination = np.pi * 0.5;
+#r.bodies[1].inclination = np.pi * 0.5;
 
 r.setTotalMass();
 
