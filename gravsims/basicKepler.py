@@ -100,6 +100,97 @@ class OrbitingSystem:
 		self.orbits[0] = np.array([basemass_x, basemass_y, basemass_z])/149597870700.;
 		satellite = 0;
 
+	def insertBody(self, body, position = [],
+        
+		mass = 0,
+		semimajor = 0,
+		arg_periastron = 0,
+		inclination = 0,
+		phase = 0,
+		eccentricity = 0,
+		radius = 0,
+		temperature = 0,
+		bt = 1,
+		ld_coeffs = [1],
+		ld_powers = [0]):
+
+		'''This function will allow one to dynamically insert a body at a given tree depth
+		 and position by appending it to the bodies list of an existing orbiting system. 
+		 It neither computes orbits for the overall system or adjusts existing orbits, 
+		 nor generates a light curve.'''
+
+	    	newBody = OrbitingSystem();
+	       	newBody.mass = mass;
+	      	newBody.semimajor = semimajor;
+	      	newBody.arg_periastron = arg_periastron;
+	       	newBody.inclination = inclination;
+	       	newBody.phase = phase;
+	       	newBody.eccentricity = eccentricity;
+	       	newBody.radius = radius;
+	       	newBody.temperature = temperature;
+	       	newBody.bt = bt;
+	       	newBody.ld_coeffs = ld_coeffs;
+	       	newBody.ld_powers = ld_powers;
+
+		if (position == []):
+			self.bodies.append(newBody);
+		else:
+			m = self;
+			for i in position:
+				m = m.bodies[i];
+            
+        		m.bodies.append(newBody);
+
+	def modifyBody(self, body, position = [],
+
+		mass = 0,
+		semimajor = 0,
+		arg_periastron = 0,
+		inclination = 0,
+		phase = 0,
+		eccentricity = 0,
+		radius = 0,
+		temperature = 0,
+		bt = 1,
+		ld_coeffs = [1],
+		ld_powers = [0]):
+
+		'''This function enables a body's properties, excluding its total mass and sub-bodies, which can
+		be set later, to be altered dynamically while a run is being performed. One needs to get the right
+		position, however, to determine which body to affect.'''
+
+		newBody = self;
+
+		if (position != []): 
+			for i in position:
+				newBody = newBody.bodies[i];
+
+	        newBody.mass = mass;
+	        newBody.semimajor = semimajor;
+	        newBody.arg_periastron = arg_periastron;
+	        newBody.inclination = inclination;
+	        newBody.phase = phase;
+	        newBody.eccentricity = eccentricity;
+	        newBody.radius = radius;
+	        newBody.temperature = temperature;
+	        newBody.bt = bt;
+	        newBody.ld_coeffs = ld_coeffs;
+	        newBody.ld_powers = ld_powers;
+
+	def removeBody(self, position):
+		'''Removes a body from the OrbitingSystem given its position. It does not, however
+		alter the total mass of the body or any other attribute.'''
+
+		if (position == []):
+			#Do nothing, should not delete the main body.
+			print "No action performed."
+
+		else:
+			m = self;
+			for i in position[:-1]:
+				m = m.bodies[i];
+			m.bodies.pop(position[-1]);
+
 def getMeanAnomaly(m1, m2, a, e):
 	"""Obtains the mean anomaly (circularized change in angle) as a function of the true
 	angular anomaly. Requires solving Kepler's equation, which is seen in mean_anomaly
