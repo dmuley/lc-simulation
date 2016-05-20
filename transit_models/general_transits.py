@@ -131,7 +131,7 @@ def arrange_combinations(fx, fy, transit_array):
 
 #Number of transit-modeling integration steps per timestep
 
-def generate_lightcurve(fx, fy, light_blocked, intersects, n, ta, times, zpos):	
+def generate_lightcurve(fx, fy, light_blocked, intersects, n, ta, times, zpos, verbose = False):	
 	"""This function generates the light curve for the system, given the sky-projected X and Y
 		positions of each body that arise from the traverse_tree function as well as parameters
 		like the radius and luminosity of each body. Other parameters include the intersection
@@ -169,7 +169,8 @@ def generate_lightcurve(fx, fy, light_blocked, intersects, n, ta, times, zpos):
 				oh *= lum[i]
 				t += oh;
 				
-		print str(times[m]) + "\t" + str(t);
+		if (verbose == True):
+			print str(times[m]) + "\t" + str(t);
 	
 		light_blocked[m] = t;
 	

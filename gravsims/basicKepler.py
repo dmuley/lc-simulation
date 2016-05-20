@@ -64,14 +64,15 @@ class OrbitingSystem:
 		base_time = getMeanAnomaly(self.bodies[0].mass, self.bodies[1].mass, self.bodies[1].semimajor, self.bodies[1].eccentricity)[1];
 		self.bt = base_time;
 				
-	def setSystemOrbits(self, s = STEPS, r = REVOLUTIONS):
+	def setSystemOrbits(self, s = STEPS, r = REVOLUTIONS, verbose = False):
 		"""Sets the orbit of each body in the system based on the base timestep
 		and the orbital parameters given. The central body responds to forces by
 		the orbiting bodies, but other orbiting bodies do not."""
 
 		base_time = self.bt;
-		print len(self.bodies);
-		#print base_time/86400;
+		if verbose == True:
+			print len(self.bodies);
+			print base_time/86400;
 		basemass_x, basemass_y, basemass_z = 0, 0, 0;
 		self.orbits = list(np.zeros(len(self.bodies)));
 		for satellite in range(1, len(self.bodies)):
@@ -79,7 +80,8 @@ class OrbitingSystem:
 			anom = a[0]; 
 			time_taken = a[1];
 			
-			print a[1]/(60 * 60 * 24);
+			if verbose == True:
+				print a[1]/(60 * 60 * 24);
 			
 			ot = getOrbitTimes(anom, t=base_time, phase = self.bodies[satellite].phase, scale_factor = base_time/time_taken, STEPS=s, REVOLUTIONS = r); 
 			self.times = ot[0];
@@ -100,7 +102,7 @@ class OrbitingSystem:
 		self.orbits[0] = np.array([basemass_x, basemass_y, basemass_z])/149597870700.;
 		satellite = 0;
 
-	def insertBody(self, body, position = [],
+	def insertBody(self, position = [],
         
 		mass = 0,
 		semimajor = 0,
@@ -141,19 +143,19 @@ class OrbitingSystem:
             
         		m.bodies.append(newBody);
 
-	def modifyBody(self, body, position = [],
+	def modifyBody(self, position = [],
 
-		mass = 0,
-		semimajor = 0,
-		arg_periastron = 0,
-		inclination = 0,
-		phase = 0,
-		eccentricity = 0,
-		radius = 0,
-		temperature = 0,
-		bt = 1,
-		ld_coeffs = [1],
-		ld_powers = [0]):
+		mass = 1j,
+		semimajor = 1j,
+		arg_periastron = 1j,
+		inclination = 1j,
+		phase = 1j,
+		eccentricity = 1j,
+		radius = 1j,
+		temperature = 1j,
+		bt = 1j,
+		ld_coeffs = 1j,
+		ld_powers = 1j):
 
 		'''This function enables a body's properties, excluding its total mass and sub-bodies, which can
 		be set later, to be altered dynamically while a run is being performed. One needs to get the right
@@ -165,19 +167,30 @@ class OrbitingSystem:
 			for i in position:
 				newBody = newBody.bodies[i];
 
-	        newBody.mass = mass;
-	        newBody.semimajor = semimajor;
-	        newBody.arg_periastron = arg_periastron;
-	        newBody.inclination = inclination;
-	        newBody.phase = phase;
-	        newBody.eccentricity = eccentricity;
-	        newBody.radius = radius;
-	        newBody.temperature = temperature;
-	        newBody.bt = bt;
-	        newBody.ld_coeffs = ld_coeffs;
-	        newBody.ld_powers = ld_powers;
+		if (mass != 1j):
+	        	newBody.mass = mass;
+	        if (semimajor != 1j):
+			newBody.semimajor = semimajor;
+	        if (arg_periastron != 1j):
+			newBody.arg_periastron = arg_periastron;
+		if (inclination != 1j):
+	        	newBody.inclination = inclination;
+	        if (phase != 1j):
+			newBody.phase = phase;
+	        if (eccentricity != 1j):
+			newBody.eccentricity = eccentricity;
+	        if (radius != 1j):
+			newBody.radius = radius;
+	        if (temperature != 1j):
+			newBody.temperature = temperature;
+	        if (bt != 1j):
+			newBody.bt = bt;
+	        if (ld_coeffs != 1j):
+			newBody.ld_coeffs = ld_coeffs;
+	        if (ld_powers != 1j):
+			newBody.ld_powers = ld_powers;
 
-	def removeBody(self, position):
+	def removeBody(self, position = []):
 		'''Removes a body from the OrbitingSystem given its position. It does not, however
 		alter the total mass of the body or any other attribute.'''
 

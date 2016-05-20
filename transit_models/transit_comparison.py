@@ -14,19 +14,16 @@ from itertools import chain;
 import matplotlib.pyplot as plt;
 import general_transits as gt;
 import time;
+import copy;
 
 def getBodies(datafiles = ["K16"]):
 	'''This function is used to divide the ability to import existing datafiles from the capacity
 	to create new ones. In the future, there will simply be a "base tree" which is imported and 
 	other bodies to be apended to the various .bodies attributes of the tree.'''
 
-	year = 1.;
-	timecoords = np.zeros(steps) + .0;
-
 	finalBodies = [];
 
 	for u in range(0, len(datafiles)):
-		l = time.time()
 		#Ensuring that import is always possible in any case
 		if __package__ is None:
 			datafile = __import__("transit_models.systems." + datafiles[u], fromlist=['']);
@@ -34,11 +31,11 @@ def getBodies(datafiles = ["K16"]):
 			datafile = __import__("systems." + datafiles[u], fromlist = ['']);
 		
 		system = datafile.s;
-		finalBodies.extend(system);
+		finalBodies.append(system);
 
 	return system;
 
-def genTransits(data, steps = 7501., revolutions = 1., n = 31):
+def genTransits(data, steps = 7501., revolutions = 1., n = 71):
 	'''This function can be used to loop through any number of datafiles containing an OrbitingSystem
 	class instance with all orbital parameters. Although it is not implemented here, the same frame- 
 	work could be used theoretically to tweak orbital parameters in order to perform MCMC. Unlike pre-
@@ -48,7 +45,11 @@ def genTransits(data, steps = 7501., revolutions = 1., n = 31):
 
 	lightcurves = [];
 
+	year = 1.;
+	timecoords = np.zeros(steps) + .0;
+
 	for u in range(0, len(data)):
+		l = time.time();
 		system = data[u];
 		if u == 0:
 			#always make sure there is a consistent time basis to compare transits
@@ -56,8 +57,6 @@ def genTransits(data, steps = 7501., revolutions = 1., n = 31):
 			year = system.bt;
 		else:
 			system.bt = year;
-
-		finalBodies.extend(system);
 
 		#Generating coordinates relative to COM of each system
 		system.setSystemOrbits(s = steps, r = revolutions);
@@ -78,6 +77,21 @@ def genTransits(data, steps = 7501., revolutions = 1., n = 31):
 		if (u == 0):
 			timecoords = cadence
 		print time.time() - l;
+		print "";
 	return timecoords, lightcurves;
 
+def keplerMultiTransit():
+	s = getBodies();
+	s.modifyBody(position=[1,1], mass = 1., semimajor = 0.005, radius = 0.000477894503 * 0.0892141778);
 
+	bodiesList = [];
+	bodiesList.append(s);
+	for u in np.linspace(1., 0.00000000000000001, 8):
+		t = copy.deepcopy(s);
+		t.modifyBody(position=[1,1], mass=u, semimajor = 0.005, radius = 0.000477894503 * 0.0892141778 * u**(1./3.));
+		print t.bodies[1].bodies[1].mass;
+		bodiesList.append(t);
+
+	finals = genTransits(bodiesList, revolutions = 0.125, steps = 5001);
+
+	return finals;
