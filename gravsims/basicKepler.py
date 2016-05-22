@@ -51,12 +51,39 @@ class OrbitingSystem:
 	
 	def setTotalMass(self):
 		""" Based on the masses of each system component, can calculate the mass of the
-		whole OrbitingSystem. Please use this to avoid guesswork. """
+		whole OrbitingSystem. Please use this to avoid guesswork. Now updated to work
+		recursively along the lines of the traverse_tree code in general_transits.py."""
 		m = 0;
-		for p in self.bodies:
-			m += p.mass;
+
+		transit_array = [self];
 		
-		self.mass = m;
+		indices_array = np.zeros(1).astype('int');
+
+		position = 0;
+		for u in range(0, 5):
+			length = len(transit_array);
+			for v in range(position, length):
+				if (transit_array[v].bodies != []):
+					transit_array.extend(transit_array[v].bodies);
+					indices_array = np.append(indices_array, np.ones(len(transit_array[v].bodies)) * v);
+
+			position += length - position;
+
+		#print len(transit_array);
+		masses = np.array([body.mass if body.bodies == [] else 0. for body in transit_array])
+		valid_search_indices = np.array([a for a in range(0,len(transit_array)) if (transit_array[a].bodies == [])]).astype('int');
+
+		for ind in valid_search_indices:
+			ind = int(ind);
+			newpos = ind;
+
+			while (newpos != 0):
+				#traces UP the tree, rather than down.
+				newpos = int(indices_array[newpos]);
+				masses[newpos] += masses[ind];
+
+		for m in range(0,len(transit_array)):
+			transit_array[m].mass = masses[m];
 		
 	def setBaseTime(self):
 		"""Sets the size of each timestep to ensure that the orbits of all bodies
