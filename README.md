@@ -6,6 +6,7 @@ The processing\_pipeline folder contains an earlier pipeline that works only for
 
 ![Kepler-16 sim](selected_images/light_curves/pred_vs_detrend.png?raw=true)
 ![Kepler-16 moon residual](selected_images/light_curves/diff_light_blocked_moon_kepler16.png?raw=true)
+![Kepler-16 residual 2](selected_images/light_curves/basic_curve_variation.png?raw=true)
 
 ##Features
 
