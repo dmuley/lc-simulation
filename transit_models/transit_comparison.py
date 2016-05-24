@@ -33,9 +33,9 @@ def getBodies(datafiles = ["K16"]):
 		system = datafile.s;
 		finalBodies.append(system);
 
-	return system;
+	return finalBodies;
 
-def genTransits(data, steps = 7501., revolutions = 1., n = 71):
+def genTransits(data, steps = 7501., revolutions = 1., n = 81):
 	'''This function can be used to loop through any number of datafiles containing an OrbitingSystem
 	class instance with all orbital parameters. Although it is not implemented here, the same frame- 
 	work could be used theoretically to tweak orbital parameters in order to perform MCMC. Unlike pre-
@@ -81,18 +81,18 @@ def genTransits(data, steps = 7501., revolutions = 1., n = 71):
 	return timecoords, lightcurves;
 
 def kepler16AlterMoons():
-	s = getBodies();
-	s.modifyBody(position=[1,1], mass = 1., semimajor = 0.005, radius = 0.000477894503 * 0.0892141778);
+	s = getBodies()[0];
+	s.modifyBody(position=[1,1], mass = 1., semimajor = 0.01, radius = 0.000477894503 * 0.0892141778);
 	s.setTotalMass();
 	bodiesList = [];
 	bodiesList.append(s);
 	for u in np.linspace(1., 0.00000000000000001, 8):
 		t = copy.deepcopy(s);
-		t.modifyBody(position=[1,1], mass=u, semimajor = 0.005, radius = 0.000477894503 * 0.0892141778 * u**(1./3.));
+		t.modifyBody(position=[1,1], mass=u, semimajor = 0.01, radius = 0.000477894503 * 0.0892141778 * u**(1./3.));
 		t.setTotalMass();
 		#print t.bodies[1].bodies[1].mass;
 		bodiesList.append(t);
 
-	finals = genTransits(bodiesList, revolutions = 0.125, steps = 5001);
+	finals = genTransits(bodiesList, revolutions = 0.1, steps = 7501);
 
 	return finals;
