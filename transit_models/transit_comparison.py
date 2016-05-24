@@ -65,7 +65,7 @@ def genTransits(data, steps = 7501., revolutions = 1., n = 81):
 		for m in system.bodies:
 			m.bt = year;
 			#if len(m.bodies) > 1:
-			m.setSystemOrbits(s = steps, r = revolutions);
+			m.setSystemOrbits(s = steps, r = revolutions, verbose = True);
 
 		#Getting final absolute X, Y, and Z coordinates in order to generate lightcurve
 		final_x, final_y, final_z, transit_array = gt.traverse_tree(system, times);	
@@ -82,17 +82,16 @@ def genTransits(data, steps = 7501., revolutions = 1., n = 81):
 
 def kepler16AlterMoons():
 	s = getBodies()[0];
-	s.modifyBody(position=[1,1], mass = 1., semimajor = 0.01, radius = 0.000477894503 * 0.0892141778);
 	s.setTotalMass();
 	bodiesList = [];
 	bodiesList.append(s);
-	for u in np.linspace(1., 0.00000000000000001, 8):
+	for u in np.arange(0,8):
 		t = copy.deepcopy(s);
-		t.modifyBody(position=[1,1], mass=u, semimajor = 0.01, radius = 0.000477894503 * 0.0892141778 * u**(1./3.));
+		t.modifyBody(position=[1,1], mass=1., semimajor = 0.005 + 0.001 * u, radius = 0.000477894503 * 0.089214177);
 		t.setTotalMass();
-		#print t.bodies[1].bodies[1].mass;
+		print t.bodies[1].mass - t.bodies[1].bodies[1].mass
 		bodiesList.append(t);
 
-	finals = genTransits(bodiesList, revolutions = 0.1, steps = 7501);
+	finals = genTransits(bodiesList, revolutions = 11./220., steps = 7501, n = 51);
 
 	return finals;
