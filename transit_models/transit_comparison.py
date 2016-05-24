@@ -80,18 +80,46 @@ def genTransits(data, steps = 7501., revolutions = 1., n = 81):
 		print "";
 	return timecoords, lightcurves;
 
-def kepler16AlterMoons():
+def kepler16AlterPlanet():
 	s = getBodies()[0];
+
+	#Actual with planet only
 	s.setTotalMass();
 	bodiesList = [];
 	bodiesList.append(s);
-	for u in np.arange(0,8):
+
+	#Actual with moon
+	m = copy.deepcopy(s);
+	m.modifyBody(position=[1,1], mass=1., semimajor = 0.005, radius = 0.000477894503 * 0.089214177);
+	m.setTotalMass();
+	bodiesList.append(m);
+
+	#Predicted with moon
+	for u in np.linspace(-50,50,101)/2.5:
 		t = copy.deepcopy(s);
-		t.modifyBody(position=[1,1], mass=1., semimajor = 0.005 + 0.001 * u, radius = 0.000477894503 * 0.089214177);
+		t.modifyBody(position=[1], semimajor = 0.7048 + 0.001 * u);
 		t.setTotalMass();
-		print t.bodies[1].mass - t.bodies[1].bodies[1].mass
 		bodiesList.append(t);
 
-	finals = genTransits(bodiesList, revolutions = 11./220., steps = 7501, n = 51);
+	finals = genTransits(bodiesList, revolutions = 11./220., steps = 5001, n = 51);
 
 	return finals;
+
+def kepler16AlterPlanet():
+	s = getBodies()[0];
+
+	bodiesList = [];
+	s.setTotalMass();
+	bodiesList.append(s);
+
+	#Predicted with moon
+	for u in np.linspace(0.00000000001, 1, 8):
+		t = copy.deepcopy(s);
+		t.modifyBody(position=[1, 1], mass = 1. * u, semimajor = 0.005, radius = 0.000477894503 * 0.0892141778 * u**(1./3.));
+		t.setTotalMass();
+		bodiesList.append(t);
+
+	finals = genTransits(bodiesList, revolutions = 11./220., steps = 15001, n = 81);
+
+	return finals;
+
