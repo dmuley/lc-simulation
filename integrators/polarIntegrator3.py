@@ -169,7 +169,7 @@ def groupAndIntegrate(bounds, num, star_rad, ld_coeff = [1.],ld_power = [0.]):
 					
 	for i in np.arange(0,len(d_theta))[::-1] + 1:
 		h = 0;
-		if (d_theta[i - 1] < np.pi / (num - 1.)):
+		if ((d_theta[i - 1] < np.pi / (num - 1.)) and d_theta[i - 1] > 3 * np.finfo(np.float32).eps):
 			for m in s:
 				n = ld_power[m];
 				r = 0;
