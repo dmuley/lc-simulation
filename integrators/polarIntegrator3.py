@@ -24,6 +24,7 @@ def getTangentsIntersections(circ):
 	tangents_var = np.zeros(len(circles)) + np.pi
 	tangents[t_circles[1] != 0.] = np.arctan2(t_circles[2][t_circles[1] != 0.],t_circles[1][t_circles[1] != 0.]);
 	tangents_var[t_circles[2]**2 + t_circles[1]**2 != 0] = np.arcsin(t_circles[0][t_circles[2]**2 + t_circles[1]**2 != 0]/np.sqrt(t_circles[2]**2 + t_circles[1]**2)[t_circles[2]**2 + t_circles[1]**2 != 0]);
+	
 	eps = np.finfo(np.float32).eps
 	tans = np.concatenate((tangents - tangents_var + 5 * eps, tangents - tangents_var - 5 * eps, tangents, tangents + tangents_var - 5 * eps, tangents + tangents_var + 5 * eps));
 	intersectors = np.array([a for a in itertools.combinations(np.arange(0,len(circ)), 2)]);
@@ -62,7 +63,9 @@ def generateRadiiThetas(n, circles, *args):
 	are also added, and may be retained or removed in the next function.
 	"""
 	r = np.unique(np.concatenate(args));
-	r = np.concatenate((r, -r, np.pi/2. - r, np.pi * 3./2. + r));
+	#r = np.concatenate((r, -r, np.pi/2. - r, np.pi * 3./2. + r));
+	r = np.concatenate((r, -r, np.pi + r, np.pi - r));
+	r = np.sort(r);
 	r[(r < 0.) | (r > 2 * np.pi)] %= 2 * np.pi;
 	angles = np.unique(np.concatenate([np.linspace(r[o], r[o + 1], n) for o in range(0,len(r) - 1)]));
 
