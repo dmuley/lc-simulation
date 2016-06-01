@@ -174,6 +174,11 @@ def groupAndIntegrate(bounds, num, star_rad, ld_coeff = [1.],ld_power = [0.]):
 				n = ld_power[m];
 				r = 0;
 				
+				#r += np.sum(rad[i][0::2]**2 / 2. - rad[i][0::2]**(n + 2.) / (n + 2.) - (rad[i][1::2]**2 / 2. - rad[i][1::2]**(n + 2.) / (n + 2.) ));
+				#r += np.sum(rad[i - 1][0::2]**2 / 2. - rad[i - 1][0::2]**(n + 2.) / (n + 2.) - (rad[i - 1][1::2]**2 / 2. - rad[i - 1][1::2]**(n + 2.) / (n + 2.) ));
+
+				r /= 2 * np.pi;
+
 				r += np.sum((star_rad**2 - rad[i][0::2]**2)**(n/2. + 1) - (star_rad**2 - rad[i][1::2]**2)**(n/2. + 1)) / (np.pi * star_rad**(n+2));
 				r += np.sum((star_rad**2 - rad[i - 1][0::2]**2)**(n/2. + 1) - (star_rad**2 - rad[i - 1][1::2]**2)**(n/2. + 1)) / (np.pi * star_rad**(n+2));
 				h += r * ld_coeffs[m];
