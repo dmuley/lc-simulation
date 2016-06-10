@@ -49,7 +49,7 @@ def genTransits(data, steps = 7501., revolutions = 1., n = 81):
 	timecoords = np.zeros(steps) + .0;
 
 	for u in range(0, len(data)):
-		l = time.time();
+	#	l = time.time();
 		system = data[u];
 		if u == 0:
 			#always make sure there is a consistent time basis to compare transits
@@ -68,6 +68,7 @@ def genTransits(data, steps = 7501., revolutions = 1., n = 81):
 			m.setSystemOrbits(s = steps, r = revolutions, verbose = True);
 
 		#Getting final absolute X, Y, and Z coordinates in order to generate lightcurve
+		l = time.time();
 		final_x, final_y, final_z, transit_array = gt.traverse_tree(system, times);	
 		fx, fy, fz, zpos = gt.sort_keys(final_x, final_y, final_z);
 		lb, intersects = gt.arrange_combinations(fx, fy, transit_array);
