@@ -305,8 +305,8 @@ def computeOrbit(m1, m2, a, e, theta_m1, theta_m2):
 def transformOrbit(r, theta, inclination, arg_periastron, ascending_node = 0.):
 	"""Transforms the orbit according to inclination and argument of periastron."""
 	
-	x = r * (np.cos(theta + arg_periastron) * np.cos(ascending_node) - np.sin(ascending_node) * np.sin(theta + arg_periastron) * np.cos(inclination - np.pi/2.);
-	y = r * (np.sin(theta + arg_periastron) * np.cos(ascending_node) + np.cos(ascending_node) * np.sin(theta + arg_periastron) * np.cos(inclination - np.pi/2.);
+	x = r * (np.cos(theta + arg_periastron) * np.cos(ascending_node) - np.sin(ascending_node) * np.sin(theta + arg_periastron) * np.cos(inclination - np.pi/2.));
+	y = r * (np.sin(theta + arg_periastron) * np.cos(ascending_node) + np.cos(ascending_node) * np.sin(theta + arg_periastron) * np.cos(inclination - np.pi/2.));
 	z = r * np.sin(theta + arg_periastron) * np.sin(inclination - np.pi/2.);
 
 	'''x0 = r * np.cos(theta)
