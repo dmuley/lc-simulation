@@ -2,6 +2,7 @@ import numpy as np;
 import itertools;
 import matplotlib.pyplot as plt;
 import time;
+import copy;
 
 def realign(circ):
 	circles = np.array(circ);
@@ -33,13 +34,14 @@ def solveCircle(c, a, b, theta):
 	return np.array([r, s]);
     
 def solveIntersections(plots, star_rad):
+	plots2 = np.copy(plots);
 	pairs = itertools.combinations(np.arange(1,len(plots)), 2);
 	for m in pairs:
 		#if a point is within another body, remove it from consideration
-		plots[m[0]][0][(plots[m[0]][0] < plots[m[1]][0]) & (plots[m[0]][0] > plots[m[1]][1])] = 0.;
-		plots[m[0]][1][(plots[m[0]][1] < plots[m[1]][0]) & (plots[m[0]][1] > plots[m[1]][1])] = 0.;
-		plots[m[1]][0][(plots[m[1]][0] < plots[m[0]][0]) & (plots[m[1]][0] > plots[m[0]][1])] = 0.;
-		plots[m[1]][1][(plots[m[1]][1] < plots[m[0]][0]) & (plots[m[1]][1] > plots[m[0]][1])] = 0.;
+		plots[m[0]][0][(plots2[m[0]][0] < plots2[m[1]][0]) & (plots2[m[0]][0] > plots2[m[1]][1])] = 0.;
+		plots[m[0]][1][(plots2[m[0]][1] < plots2[m[1]][0]) & (plots2[m[0]][1] > plots2[m[1]][1])] = 0.;
+		plots[m[1]][0][(plots2[m[1]][0] < plots2[m[0]][0]) & (plots2[m[1]][0] > plots2[m[0]][1])] = 0.;
+		plots[m[1]][1][(plots2[m[1]][1] < plots2[m[0]][0]) & (plots2[m[1]][1] > plots2[m[0]][1])] = 0.;
 		
 	for u in plots:
 		u[0][u[0] > star_rad] = star_rad;
@@ -50,7 +52,9 @@ def solveIntersections(plots, star_rad):
 	
 	upper[upper > star_rad] = star_rad;
 	lower[lower > star_rad] = star_rad
-			
+
+	#print (plots == plots2);	
+		
 	return plots[1:];
 	
 def integrate(plots, ld_coeffs, ld_powers, star_rad, theta):
@@ -60,8 +64,7 @@ def integrate(plots, ld_coeffs, ld_powers, star_rad, theta):
 
 	for m in range(0,len(ld_powers)):
 		for p in plots:
-			integral = -np.trapz((star_rad**2 - p[0][p[0] != star_rad]**2)**(ld_powers[m]/2. + 1.))
-			integral += np.trapz((star_rad**2 - p[1][p[1] != star_rad]**2)**(ld_powers[m]/2. + 1.))
+			integral = -np.trapz((star_rad**2 - p[0][p[0] != star_rad]**2)**(ld_powers[m]/2. + 1.)) + np.trapz((star_rad**2 - p[1][p[1] != star_rad]**2)**(ld_powers[m]/2. + 1.))
 			answer += integral * ld_coeffs[m] / star_rad**(ld_powers[m] + 2.)
 				
 	answer /= np.pi * np.sum(ld_coeffs) * 2.;
@@ -78,16 +81,17 @@ import matplotlib.pyplot as plt
 
 lc = [];
 e = time.time();
-n = 750
-for t in range(0, 1000):
-	cir = [[5., 0., 0.], [1.,0., -6. + 12 * t/1000.], [1., -6.01 + 12 * t/1000., 0.]]
+n = 100
+q = 2000;
+for t in range(0, q):
+	cir = [[5., 0., 0.],[1., -6. + 12 * t/1000., 1.],[2.,-7. + 14. * t/1000,2. * 2. * t/1000.]]
 	g = fi.realign(cir)
-	theta = np.linspace(0., 2. * np.pi, int(g.T[0][0]/g.T[0].min() * n));
+	theta = np.linspace(0., 2. * np.pi, 2 * np.pi * int(g.T[0][0]/g.T[0].min() * n));
 	m = [fi.solveCircle(a[0], a[1], a[2], theta) for a in g]
 	k = fi.solveIntersections(m, 5.)
-	dip = fi.integrate(k, np.array([40.]), np.array([0.]), 5., theta);
+	dip = fi.integrate(k, np.array([1., 1., 1.]), np.array([0., 1., 2.]), 5., theta);
 	lc.append(dip);
 lc = np.array(lc);
-print (time.time() - e)/1000;
+print (time.time() - e)/q;
 
 '''

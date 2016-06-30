@@ -106,7 +106,7 @@ def kepler16AlterPlanet():
 
 	return finals;
 
-def kepler16AlterPlanet():
+def kepler16AlterMoon():
 	s = getBodies()[0];
 
 	bodiesList = [];

@@ -40,7 +40,7 @@ class OrbitingSystem:
 	"""AU"""
 	temperature = 0;
 	"""Arbitrary units"""
-	
+	ascending_node = 0;
 	bt = 1;
 	
 	ld_coeffs = [1];
@@ -115,7 +115,7 @@ class OrbitingSystem:
 			#gets a time- and phase- dependent set of radii and angles, needed eventually for transits
 			q = computeOrbit(self.bodies[0].mass, self.bodies[satellite].mass, self.bodies[satellite].semimajor, self.bodies[satellite].eccentricity, ot[1], ot[2]);
 			
-			base_xyz = transformOrbit(q[0], ot[1], self.bodies[satellite].inclination, self.bodies[satellite].arg_periastron);
+			base_xyz = transformOrbit(q[0], ot[1], self.bodies[satellite].inclination, self.bodies[satellite].arg_periastron, self.bodies[satellite].ascending_node);
 			
 			#find out if += works for NumPy arrays, highly doubt so
 			#mathematically: seems legit?
@@ -123,7 +123,7 @@ class OrbitingSystem:
 			basemass_y += base_xyz[1];
 			basemass_z += base_xyz[2];
 			
-			planet_xyz = transformOrbit(q[1], ot[2], self.bodies[satellite].inclination, self.bodies[satellite].arg_periastron);
+			planet_xyz = transformOrbit(q[1], ot[2], self.bodies[satellite].inclination, self.bodies[satellite].arg_periastron, self.bodies[satellite].ascending_node);
 			self.orbits[satellite] = (np.array(planet_xyz)/149597870700.);
 			
 		self.orbits[0] = np.array([basemass_x, basemass_y, basemass_z])/149597870700.;
@@ -139,6 +139,7 @@ class OrbitingSystem:
 		eccentricity = 0,
 		radius = 0,
 		temperature = 0,
+		ascending_node = 0,
 		bt = 1,
 		ld_coeffs = [1],
 		ld_powers = [0]):
@@ -180,6 +181,7 @@ class OrbitingSystem:
 		eccentricity = 1j,
 		radius = 1j,
 		temperature = 1j,
+		ascending_node = 1j,
 		bt = 1j,
 		ld_coeffs = 1j,
 		ld_powers = 1j):
@@ -210,6 +212,8 @@ class OrbitingSystem:
 			newBody.radius = radius;
 	        if (temperature != 1j):
 			newBody.temperature = temperature;
+		if (ascending_node != 1j):
+			newBody.ascending_node = ascending_node;
 	        if (bt != 1j):
 			newBody.bt = bt;
 	        if (ld_coeffs != 1j):
@@ -298,26 +302,31 @@ def computeOrbit(m1, m2, a, e, theta_m1, theta_m2):
 	
 	return np.array([r1, r2]);
 	
-def transformOrbit(r, theta, inclination, arg_periastron):
+def transformOrbit(r, theta, inclination, arg_periastron, ascending_node = 0.):
 	"""Transforms the orbit according to inclination and argument of periastron."""
-	x0 = r * np.cos(theta)
+	
+	x = r * (np.cos(theta + arg_periastron) * np.cos(ascending_node) - np.sin(ascending_node) * np.sin(theta + arg_periastron) * np.cos(inclination - np.pi/2.);
+	y = r * (np.sin(theta + arg_periastron) * np.cos(ascending_node) + np.cos(ascending_node) * np.sin(theta + arg_periastron) * np.cos(inclination - np.pi/2.);
+	z = r * np.sin(theta + arg_periastron) * np.sin(inclination - np.pi/2.);
+
+	'''x0 = r * np.cos(theta)
 	y0 = r * np.sin(theta)
 	
-	'''xa = xa0 * np.cos(inclination);
+	xa = xa0 * np.cos(inclination);
 	ya = ya0
 	
 	z = xa0 * np.sin(inclination);	
-	'''
+	
 	x = x0 * np.cos(arg_periastron) - y0 * np.sin(arg_periastron);
 	y = x0 * np.sin(arg_periastron) + y0 * np.cos(arg_periastron);
 	
 	x *= np.cos(inclination);
         z = x * np.sin(inclination);
-
+	'''
 
 	return x, y, z;
 
-def whole_orbit(m1, m2, a, e, arg_periastron, inclination=0):
+def whole_orbit(m1, m2, a, e, arg_periastron, inclination=0, ascending_node = 0.):
 	"""Combines all other functions for orbits into one. Used in the
 	getSystemOrbits class function for each body in the system."""
 
@@ -328,8 +337,8 @@ def whole_orbit(m1, m2, a, e, arg_periastron, inclination=0):
 	r = np.linspace(-2 * a * 149597870700, 2 * a * 149597870700);
 	l = a * 149597870700
 	
-	xa, ya, za = transformOrbit(ol[0], got[1], inclination, arg_periastron);
-	xb, yb, zb = transformOrbit(ol[1], got[2], inclination, arg_periastron);
+	xa, ya, za = transformOrbit(ol[0], got[1], inclination, arg_periastron, ascending_node);
+	xb, yb, zb = transformOrbit(ol[1], got[2], inclination, arg_periastron, ascending_node);
 	
 	plot_orbit(a, np.array([xa, ya, za]), np.array([xb, yb, zb]));
 	

@@ -35,6 +35,7 @@ def import_idl(filename = '../../../Data/K16/kic126corr_n.sav', num = 400):
 		flux[np.where(idlfile['cont'] == a)[0]] -= k.astype('float64');
 
 		#gp2(np.array([cadence[idlfile['cont'] == a], flux[idlfile['cont'] == a]]), block_size = 2000)[2];
+		#flux[idlfile['cont'] == a] -= mean;
 		flux[idlfile['cont'] == a] /= mean;
 
 	arm = argrelmin(flux)[0];
@@ -149,6 +150,35 @@ def full_pipeline(star_id = "kplr011904151", cad = "llc", per = 0.837495):
 	#plt.show();
 	
 	return t
+
+def import_star(star_id = "kplr011904151", cad = "llc"):
+	base_flux = np.array([])
+        base_cadence = np.array([])
+        if cad == "llc":
+                cad_factor = 30.
+        else:
+                cad_factor = 1.
+        for a in os.listdir("."):
+                if star_id and cad in a:
+                        print a;
+
+                        q = import_data(a)
+			q[1] /= np.average(q[1]);
+			q[1] -= np.average(q[1]);
+                        base_flux = np.append(base_flux, q[1]);
+                        base_cadence = np.append(base_cadence, q[0]);
+
+	return base_cadence, base_flux;
+
+def detrend_star(cadence, flux, num = 20):
+        arm = argrelmin(flux)[0];
+        arm = arm[flux[arm] < -0.005]
+        for u in arm:
+                fluxbase = flux[max(0,u - int(num)):min(len(flux), u + int(num))];
+                fluxbase_mean = np.average(fluxbase[fluxbase > 0])
+                flux[max(0,u - int(num)):min(len(flux), u + int(num))] -= fluxbase_mean;
+
+	return cadence, flux
 
 def mean_confidence_interval(data, confidence=0.95):
 	"""shasan, http://stackoverflow.com/questions/15033511/compute-a-confidence-interval-from-sample-data """
