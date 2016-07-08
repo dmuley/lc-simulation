@@ -1,0 +1,181 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import pipeline as pp
+import os
+%cd ../transit_models/
+import transit_comparison as tc
+ek = pp.import_idl(num=30)
+y = tc.genTransits(tc.getBodies(['K16', 'K16_moon']), revolutions = 0.50, steps = 7521, n = 81)
+
+plt.clf()
+fig, ax = plt.subplots();
+plt.xlim(y[0][0] + 2.0, y[0][-1])
+plt.title("Kepler-16 observed vs. modeled detrended light curve");
+plt.xlabel("Fraction of flux blocked");
+plt.ylabel("Time (days)");
+ax.plot(ek[0] - ek[0][0] - 9.31, ek[1], 'b.', label = "Detrended data")
+ax.plot(y[0], -y[1][1], 'r-', label = "Model")
+handles, labels = ax.get_legend_handles_labels()
+ax.legend(handles, labels)
+fig.show()
+
+
+
+
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+import pipeline as pp
+from scipy.signal import argrelmin as arm
+
+%cd ../transit_models/
+import transit_comparison as tc
+%cd ../../../Data/K16/
+k16 = pp.import_star("kplr012644769", "slc")
+f = tc.getBodies(['K16'])
+
+k16 = np.array(k16)
+k16[0] *= 58.9/(60. * 60. * 24.)
+l = [];
+
+f[0].modifyBody(position = [0, 0], ld_coeffs = [1.0, 1.1, 0.5, 0.3], ld_powers = [0.0, 0.5, 1.0, 1.5])
+f[0].modifyBody(position = [0, 1], arg_periastron = -0.2 + 0.1 + np.pi - 0.016, phase = 0)
+for m in range(0,10):
+	f[0].modifyBody(position = [1], phase = -np.pi/30 * 0., inclination = m * np.pi/20.)
+	k = tc.genTransits(f, revolutions = 0.25, steps = 7501, n = 51)
+	l.append(k);
+
+for r in range(1,3):
+	plt.figure(1);
+	plt.subplot(210 + r);
+	plt.plot(k16[0] - k16[0][np.argmin(k16[1])] + 0.009, k16[1] + (0.0025 * 2 * (float(r) - 1.5)) - 0.0005 * (1 - float(r))-0.00125, marker='.', color='0.75');
+
+
+	for y in l[0:]:
+		plt.plot(y[0] - y[0][np.argmin(-y[1][0])], -y[1][0])
+
+	if (r == 1):
+		plt.xlim(-21.5 - 0.03, -20.5 - 0.03);
+		plt.title("Kepler-16A occults Kepler-16B");
+	else:
+		plt.xlim(-0.5, 0.5);
+		plt.title("Kepler-16B transits Kepler-16A");
+		
+		plt.xlabel("Time from bottom of transit (days)")
+		plt.ylabel("Fraction of light blocked")
+	
+ax = plt.gca();
+plt.show()
+%cd ../../Code/lc_simulation/processing_pipeline/
+
+f = time.time()
+for k in range(0,1000):
+	for u in np.arange(0,20):
+		for v in np.arange(1, 20):
+			v**u;
+print (time.time() - f)/(380000.);
+
+g = time.time();
+for k in range(0,1000):
+	for u in np.arange(0,20).astype('float64')/10.:
+		for v in np.arange(1, 20).astype('float64')/10.:
+			v**u;
+print (time.time() - f)/(380000.);		
+
+plt.clf()
+plt.xlim(114, 115.47);
+plt.plot(k16[0] - k16[0][np.argmin(k16[1])], k16[1] + 0.003 * 0 - 0.008, marker='.', color='0.75');
+for m in l[3:4]:
+    plt.plot(m[0] - 140. + 16. - 0.4 + 228.75781962 + 0.025 - 0.01 - 5.938 + 6.864 + 0.303, -m[1][0])
+
+plt.xlabel("Time from bottom of transit (days)");
+plt.ylabel("Fraction of light blocked");
+plt.title("Kepler-16(AB)b transits Kepler-16A");
+plt.ylim(-0.05,0.05)
+plt.show();
+
+
+
+import transit_comparison as tc
+import general_transits as gt
+import numpy as np
+import matplotlib.pyplot as plt
+import time
+
+def genTransits(data, steps = 7501., revolutions = 1., n = 81):
+        '''This function can be used to loop through any number of datafiles containing an OrbitingSystem
+        class instance with all orbital parameters. Although it is not implemented here, the same frame- 
+        work could be used theoretically to tweak orbital parameters in order to perform MCMC. Unlike pre-
+        vious versions of the code, this means that orbital parameters need no longer be static.
+
+        By default, the program uses the first system's orbital period as the "base time".'''
+
+        lightcurves = [];
+
+        year = 1.;
+        timecoords = np.zeros(steps) + .0;
+
+        for u in range(0, len(data)):
+        #       l = time.time();
+                system = data[u];
+                if u == 0:
+                        #always make sure there is a consistent time basis to compare transits
+                        system.setBaseTime();
+                        year = system.bt;
+                else:
+                        system.bt = year;
+
+                #Generating coordinates relative to COM of each system
+                system.setSystemOrbits(s = steps, r = revolutions);
+                times = system.times;
+
+                for m in system.bodies:
+                        m.bt = year;
+                        #if len(m.bodies) > 1:
+                        m.setSystemOrbits(s = steps, r = revolutions, verbose = True);
+
+                #Getting final absolute X, Y, and Z coordinates in order to generate lightcurve
+                l = time.time();
+                final_x, final_y, final_z, transit_array = gt.traverse_tree(system, times);
+                fx, fy, fz, zpos = gt.sort_keys(final_x, final_y, final_z);
+                
+                return final_x, final_y, final_z
+                
+f = tc.getBodies(["K16_moon"]);
+
+f[0].bodies[0].bodies[1].arg_periastron = -np.pi * 1./2.
+f[0].bodies[1].arg_periastron = -np.pi/2. 
+f[0].bodies[1].ascending_node = -np.pi/2.
+f[0].bodies[0].bodies[1].ascending_node = -np.pi/2.;             
+#f[0].bodies[1].eccentricity = 0.5;        
+f[0].bodies[1].bodies[1].inclination = np.pi/2.
+
+import matplotlib as mpl
+from mpl_toolkits.mplot3d import Axes3D
+import numpy as np
+import matplotlib.pyplot as plt
+
+mpl.rcParams['legend.fontsize'] = 10
+
+fig = plt.figure()
+ax = fig.gca(projection='3d')
+#theta = np.linspace(-4 * np.pi, 4 * np.pi, 100)
+#z = np.linspace(-2, 2, 100)
+#r = z**2 + 1
+#x = r * np.sin(theta)
+#y = r * np.cos(theta)
+#ax.plot(x, y, z, label='parametric curve')
+ax.legend()
+
+for Cj in range(0,1):
+    #f[0].modifyBody(position = [0,1], inclination = 0. * np.pi/20.)
+    ii = genTransits(f)
+    for u in range(0, len(ii[2] - 1)):
+        ax.plot(ii[0][u][:10000], ii[1][u][:10000], ii[2][u][:10000], 'r')
+        ax.plot(ii[0][u][:1000], ii[1][u][:1000],ii[2][u][:1000], 'g')
+        ax.plot(ii[0][u][:100], ii[1][u][:100],ii[2][u][:100], 'b')
+
+plt.show()
+
+https://farside.ph.utexas.edu/teaching/celestial/Celestial/node34.html

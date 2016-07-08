@@ -40,7 +40,7 @@ class OrbitingSystem:
 	"""AU"""
 	temperature = 0;
 	"""Arbitrary units"""
-	ascending_node = 0;
+	ascending_node = np.pi/2.;
 	bt = 1;
 	
 	ld_coeffs = [1];
@@ -102,6 +102,10 @@ class OrbitingSystem:
 			print base_time/86400;
 		basemass_x, basemass_y, basemass_z = 0, 0, 0;
 		self.orbits = list(np.zeros(len(self.bodies)));
+		#should only be a reaction to the other bodies, and should not have an effect in itself
+		self.bodies[0].arg_periastron = 0.;
+		self.bodies[0].ascending_node = 0.;
+		
 		for satellite in range(1, len(self.bodies)):
 			a = getMeanAnomaly(self.bodies[0].mass, self.bodies[satellite].mass, self.bodies[satellite].semimajor, self.bodies[satellite].eccentricity);
 			anom = a[0]; 
@@ -302,29 +306,14 @@ def computeOrbit(m1, m2, a, e, theta_m1, theta_m2):
 	
 	return np.array([r1, r2]);
 	
-def transformOrbit(r, theta, inclination, arg_periastron, ascending_node = 0.):
+def transformOrbit(r, theta, inclination, arg_periastron, ascending_node):
 	"""Transforms the orbit according to inclination and argument of periastron."""
 	
-	x = r * (np.cos(theta + arg_periastron) * np.cos(ascending_node) - np.sin(ascending_node) * np.sin(theta + arg_periastron) * np.cos(inclination - np.pi/2.));
-	y = r * (np.sin(theta + arg_periastron) * np.cos(ascending_node) + np.cos(ascending_node) * np.sin(theta + arg_periastron) * np.cos(inclination - np.pi/2.));
-	z = r * np.sin(theta + arg_periastron) * np.sin(inclination - np.pi/2.);
+	x = r * (np.cos(theta + arg_periastron + np.pi) * np.cos(ascending_node) - np.sin(ascending_node) * np.sin(theta + arg_periastron + np.pi) * np.cos(inclination - np.pi/2.));
+	y = r * (np.cos(theta + arg_periastron + np.pi) * np.sin(ascending_node) + np.cos(ascending_node) * np.sin(theta + arg_periastron + np.pi) * np.cos(inclination - np.pi/2.));
+	z = r * np.sin(theta + arg_periastron + np.pi) * np.sin(inclination - np.pi/2.);
 
-	'''x0 = r * np.cos(theta)
-	y0 = r * np.sin(theta)
-	
-	xa = xa0 * np.cos(inclination);
-	ya = ya0
-	
-	z = xa0 * np.sin(inclination);	
-	
-	x = x0 * np.cos(arg_periastron) - y0 * np.sin(arg_periastron);
-	y = x0 * np.sin(arg_periastron) + y0 * np.cos(arg_periastron);
-	
-	x *= np.cos(inclination);
-        z = x * np.sin(inclination);
-	'''
-
-	return x, y, z;
+	return y, z, x;
 
 def whole_orbit(m1, m2, a, e, arg_periastron, inclination=0, ascending_node = 0.):
 	"""Combines all other functions for orbits into one. Used in the
