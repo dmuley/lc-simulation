@@ -1,6 +1,6 @@
 import numpy as np;
 from scipy import stats, constants;
-from scipy.optimize import fsolve;
+from scipy.optimize import newton;
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
@@ -120,9 +120,7 @@ class OrbitingSystem:
 			q = computeOrbit(self.bodies[0].mass, self.bodies[satellite].mass, self.bodies[satellite].semimajor, self.bodies[satellite].eccentricity, ot[1], ot[2]);
 			
 			base_xyz = transformOrbit(q[0], ot[1], self.bodies[satellite].inclination, self.bodies[satellite].arg_periastron, self.bodies[satellite].ascending_node);
-			
-			#find out if += works for NumPy arrays, highly doubt so
-			#mathematically: seems legit?
+
 			basemass_x += base_xyz[0];
 			basemass_y += base_xyz[1];
 			basemass_z += base_xyz[2];
@@ -242,8 +240,7 @@ class OrbitingSystem:
 def getMeanAnomaly(m1, m2, a, e):
 	"""Obtains the mean anomaly (circularized change in angle) as a function of the true
 	angular anomaly. Requires solving Kepler's equation, which is seen in mean_anomaly
-	child function. Often times, fsolve is the slowest link in the chain, but problems are
-	negligible even on a large scale."""
+	child function. """
 
 	#Masses of each body are in Earth masses
 	
@@ -270,26 +267,18 @@ def getOrbitTimes(mean_anomaly, t, phase = 0, scale_factor = 1, STEPS = STEPS, R
 	at that true anomaly, to determine the shape of the orbit.
 
 	Performs rounding to ensure that the right number of timesteps is used."""
-	#equal areas in equal times --> dA ~ dt
-	#making sure that times do not become slightly asynchronous due to floating point error, need our dAs right.
 
-	#Note that phase is in terms of mean anomaly (should it be?) rather than true
-	dA = 0;
 	dA = np.linspace(phase, (2 * REVOLUTIONS * np.pi) * int(scale_factor * STEPS)/STEPS + phase, STEPS)-np.pi;
 
-	theta_m1 = np.array([]);
+	theta_m1 = np.zeros(len(dA));
 	for p in range(0, len(dA)):
-		angle = dA[p]
-		val = fsolve(mean_anomaly, x0=angle, args=((angle + np.pi) % (2 * np.pi) - np.pi));
-		theta_m1 = np.append(theta_m1, val);
+		theta_m1[p] = newton(mean_anomaly, x0=dA[p], args=((dA[p] + np.pi) % (2 * np.pi) - np.pi,));
 		
-	theta_m2 = np.pi + theta_m1;
+	#theta_m2 = np.pi + theta_m1;
 	
 	dt = (dA+np.pi -phase)/np.max(dA+np.pi-phase) * REVOLUTIONS * t/86400;
 	
-	tm1_f, tm2_f, dt_f = theta_m1, theta_m2, dt;
-	
-	return np.array([dt_f, tm1_f, tm2_f]);
+	return np.array([dt, theta_m1, theta_m1 + np.pi]);
 
 	
 def computeOrbit(m1, m2, a, e, theta_m1, theta_m2):
@@ -332,7 +321,6 @@ def whole_orbit(m1, m2, a, e, arg_periastron, inclination=0, ascending_node = 0.
 	plot_orbit(a, np.array([xa, ya, za]), np.array([xb, yb, zb]));
 	
 	return np.array([xa, ya, za]), np.array([xb, yb, zb]);
-
 
 
 def plot_orbit(a, args):

@@ -145,11 +145,13 @@ def genTransits(data, steps = 7501., revolutions = 1., n = 81):
 f = tc.getBodies(["K16_moon"]);
 
 f[0].bodies[0].bodies[1].arg_periastron = -np.pi * 1./2.
-f[0].bodies[1].arg_periastron = -np.pi/2. 
+f[0].bodies[1].arg_periastron = -np.pi/2.
+f[0].bodies[1].phase = -np.pi/10.
 f[0].bodies[1].ascending_node = -np.pi/2.
 f[0].bodies[0].bodies[1].ascending_node = -np.pi/2.;             
 #f[0].bodies[1].eccentricity = 0.5;        
 f[0].bodies[1].bodies[1].inclination = np.pi/2.
+f[0].bodies[1].bodies[1].semimajor = 0.015;
 
 import matplotlib as mpl
 from mpl_toolkits.mplot3d import Axes3D
@@ -179,3 +181,9 @@ for Cj in range(0,1):
 plt.show()
 
 https://farside.ph.utexas.edu/teaching/celestial/Celestial/node34.html
+
+(R**2 - ((a * cos(x) + b * sin(x)) + sqrt((a * cos(x) + b * sin(x))**2 - (a**2 + b**2 - c**2)))**2)**n
+
+(R**2 - (r*cos(t) + sqrt(a**2 - (r * sin(t))**2))**2)**n
+
+k = (r*cos(t) + sqrt(a**2 - (r * sin(t))**2))
