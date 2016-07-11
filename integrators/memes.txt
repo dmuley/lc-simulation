@@ -142,16 +142,21 @@ def genTransits(data, steps = 7501., revolutions = 1., n = 81):
                 
                 return final_x, final_y, final_z
                 
-f = tc.getBodies(["K16_moon"]);
+f = tc.getBodies(["K16", "K16_moon"]);
+print f[0].bodies[1].bodies[1].semimajor;
 
 f[0].bodies[0].bodies[1].arg_periastron = -np.pi * 1./2.
 f[0].bodies[1].arg_periastron = -np.pi/2.
 f[0].bodies[1].phase = -np.pi/10.
-f[0].bodies[1].ascending_node = -np.pi/2.
-f[0].bodies[0].bodies[1].ascending_node = -np.pi/2.;             
-#f[0].bodies[1].eccentricity = 0.5;        
 f[0].bodies[1].bodies[1].inclination = np.pi/2.
-f[0].bodies[1].bodies[1].semimajor = 0.015;
+f[0].bodies[1].bodies[1].semimajor = 1.;
+
+f[1].bodies[0].bodies[1].arg_periastron = -np.pi * 1./2.
+f[1].bodies[1].arg_periastron = -np.pi/2.
+f[1].bodies[1].phase = -np.pi/10.
+f[1].bodies[1].bodies[1].mass = 1.;
+f[1].bodies[1].bodies[1].semimajor = 0.015;
+f[1].bodies[1].bodies[1].inclination = np.pi/2.;
 
 import matplotlib as mpl
 from mpl_toolkits.mplot3d import Axes3D
@@ -172,14 +177,27 @@ ax.legend()
 
 for Cj in range(0,1):
     #f[0].modifyBody(position = [0,1], inclination = 0. * np.pi/20.)
-    ii = genTransits(f)
+    ii = genTransits(f, revolutions = 10.)
     for u in range(0, len(ii[2] - 1)):
         ax.plot(ii[0][u][:10000], ii[1][u][:10000], ii[2][u][:10000], 'r')
         ax.plot(ii[0][u][:1000], ii[1][u][:1000],ii[2][u][:1000], 'g')
         ax.plot(ii[0][u][:100], ii[1][u][:100],ii[2][u][:100], 'b')
 
+plt.title("Kepler-16 with hypothetical Earth-sized moon (a=0.015 AU)")
 plt.show()
 
+for u in range(0, len(ii[2] - 1)):
+	plt.plot(ii[0][u][:10000], ii[2][u][:10000],'r') #ii[2][u][:10000], 'r')
+	plt.plot(ii[0][u][:1000], ii[2][u][:1000],'g') #,ii[2][u][:1000], 'g')
+	plt.plot(ii[0][u][:100], ii[2][u][:100],'b') #,ii[2][u][:100], 'b')
+	plt.plot(ii[0][u][:1], ii[2][u][:1]+0.005,color='black',marker='o') #,ii[2][u][:100], 'b')
+
+plt.plot([0.,0.], [0. - 0.005,0.81], color='grey',marker='o')
+plt.title("Kepler-16 with hypothetical Earth-sized moon (a=0.015 AU)")
+plt.ylabel("y-displacement (AU)")
+plt.xlabel("x-displacement (AU)")
+plt.ylim(0.8,-0.8)
+plt.show()
 https://farside.ph.utexas.edu/teaching/celestial/Celestial/node34.html
 
 (R**2 - ((a * cos(x) + b * sin(x)) + sqrt((a * cos(x) + b * sin(x))**2 - (a**2 + b**2 - c**2)))**2)**n

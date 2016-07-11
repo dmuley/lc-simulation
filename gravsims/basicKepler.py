@@ -40,7 +40,7 @@ class OrbitingSystem:
 	"""AU"""
 	temperature = 0;
 	"""Arbitrary units"""
-	ascending_node = np.pi/2.;
+	ascending_node = -np.pi/2.;
 	bt = 1;
 	
 	ld_coeffs = [1];
@@ -114,7 +114,7 @@ class OrbitingSystem:
 			if verbose == True:
 				print a[1]/(60 * 60 * 24);
 			
-			ot = getOrbitTimes(anom, t=base_time, phase = self.bodies[satellite].phase, scale_factor = base_time/time_taken, STEPS=s, REVOLUTIONS = r); 
+			ot = getOrbitTimes(anom, t=base_time,e=self.bodies[satellite].eccentricity, phase = self.bodies[satellite].phase, scale_factor = base_time/time_taken, STEPS=s, REVOLUTIONS = r); 
 			self.times = ot[0];
 			#gets a time- and phase- dependent set of radii and angles, needed eventually for transits
 			q = computeOrbit(self.bodies[0].mass, self.bodies[satellite].mass, self.bodies[satellite].semimajor, self.bodies[satellite].eccentricity, ot[1], ot[2]);
@@ -251,17 +251,17 @@ def getMeanAnomaly(m1, m2, a, e):
 	
 	t = 2 * np.pi * np.sqrt((a)**3/(G * (m1 + m2)));
 	apoapsis_distance = a/(1 - e);
-	periapsis_distance = a/(1 + e);
+	periapsis_distance = a/(1. + e);
 	
-	def mean_anomaly(theta, a):
-		ma = 2 * np.arctan(np.sqrt((1 - e)/(1 + e)) * np.tan(theta/2));
-		ta = ma - e * np.sin(ma);
+	def mean_anomaly(ea, a):
+		#ea = 2. * np.arctan(np.sqrt((1. - e)/(1. + e)) * np.tan(theta/2.));
+		ma = ea - e * np.sin(ea);
 		
-		return ta - a;
+		return ma - a;
 		
 	return (mean_anomaly, t);
 				
-def getOrbitTimes(mean_anomaly, t, phase = 0, scale_factor = 1, STEPS = STEPS, REVOLUTIONS = REVOLUTIONS):
+def getOrbitTimes(mean_anomaly, t, e, phase = 0, scale_factor = 1, STEPS = STEPS, REVOLUTIONS = REVOLUTIONS):
 	"""Uses Kepler's Second Law of equal areas in equal times (which is true of the mean anomaly) in order to
 	calculate the time at which a body has a given true anomaly. This is then used, along with the orbital radius
 	at that true anomaly, to determine the shape of the orbit.
@@ -269,14 +269,16 @@ def getOrbitTimes(mean_anomaly, t, phase = 0, scale_factor = 1, STEPS = STEPS, R
 	Performs rounding to ensure that the right number of timesteps is used."""
 
 	dA = np.linspace(phase, (2 * REVOLUTIONS * np.pi) * int(scale_factor * STEPS)/STEPS + phase, STEPS)-np.pi;
-
 	theta_m1 = np.zeros(len(dA));
-	for p in range(0, len(dA)):
-		theta_m1[p] = newton(mean_anomaly, x0=dA[p], args=((dA[p] + np.pi) % (2 * np.pi) - np.pi,));
-		
-	#theta_m2 = np.pi + theta_m1;
 	
-	dt = (dA+np.pi -phase)/np.max(dA+np.pi-phase) * REVOLUTIONS * t/86400;
+	for p in range(0, len(dA)):
+		#generates array of eccentric anomalies
+		theta_m1[p] = newton(mean_anomaly, x0=dA[p], args=((dA[p] + np.pi) % (2 * np.pi) - np.pi,));
+	
+	#converts eccentric anomalies to 
+	theta_m1 = 2. * np.arctan(np.sqrt((1. + e)/(1. - e)) * np.tan(theta_m1/2.));
+		
+	dt = (dA + np.pi - phase)/np.max(dA + np.pi - phase) * REVOLUTIONS * t/86400;
 	
 	return np.array([dt, theta_m1, theta_m1 + np.pi]);
 
@@ -298,11 +300,11 @@ def computeOrbit(m1, m2, a, e, theta_m1, theta_m2):
 def transformOrbit(r, theta, inclination, arg_periastron, ascending_node):
 	"""Transforms the orbit according to inclination and argument of periastron."""
 	
-	x = r * (np.cos(theta + arg_periastron + np.pi) * np.cos(ascending_node) - np.sin(ascending_node) * np.sin(theta + arg_periastron + np.pi) * np.cos(inclination - np.pi/2.));
-	y = r * (np.cos(theta + arg_periastron + np.pi) * np.sin(ascending_node) + np.cos(ascending_node) * np.sin(theta + arg_periastron + np.pi) * np.cos(inclination - np.pi/2.));
-	z = r * np.sin(theta + arg_periastron + np.pi) * np.sin(inclination - np.pi/2.);
+	x = r * (np.cos(theta + arg_periastron) * np.cos(ascending_node) - np.sin(ascending_node) * np.sin(theta + arg_periastron + np.pi) * np.cos(inclination - np.pi/2.));
+	y = r * (np.cos(theta + arg_periastron) * np.sin(ascending_node) + np.cos(ascending_node) * np.sin(theta + arg_periastron + np.pi) * np.cos(inclination - np.pi/2.));
+	z = r * np.sin(theta + arg_periastron) * np.sin(inclination - np.pi/2.);
 
-	return y, z, x;
+	return -y, -z, x;
 
 def whole_orbit(m1, m2, a, e, arg_periastron, inclination=0, ascending_node = 0.):
 	"""Combines all other functions for orbits into one. Used in the
