@@ -151,13 +151,14 @@ def full_pipeline(star_id = "kplr011904151", cad = "llc", per = 0.837495):
 	
 	return t
 
-def import_star(star_id = "kplr011904151", cad = "llc"):
+def import_star(star_id = "kplr011904151", cad = "llc", day_scale=True):
 	base_flux = np.array([])
         base_cadence = np.array([])
+	cad_factor = 58.84876/(60. * 60. * 24.);
         if cad == "llc":
-                cad_factor = 30.
-        else:
-                cad_factor = 1.
+                cad_factor *= 30.
+	if not day_scale:
+		cad_facctor = 1.
         for a in os.listdir("."):
                 if star_id and cad in a:
                         print a;
@@ -166,7 +167,7 @@ def import_star(star_id = "kplr011904151", cad = "llc"):
 			q[1] /= np.average(q[1]);
 			q[1] -= np.average(q[1]);
                         base_flux = np.append(base_flux, q[1]);
-                        base_cadence = np.append(base_cadence, q[0]);
+                        base_cadence = np.append(base_cadence, q[0] * cad_factor);
 
 	return base_cadence, base_flux;
 

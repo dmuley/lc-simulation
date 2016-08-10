@@ -45,6 +45,9 @@ def genTransits(data, steps = 7501., revolutions = 1., n = 81):
 
 	lightcurves = [];
 
+	revmax = np.max(np.array(revolutions));
+	print revmax;
+
 	year = 1.;
 	timecoords = np.zeros(steps) + .0;
 
@@ -59,13 +62,13 @@ def genTransits(data, steps = 7501., revolutions = 1., n = 81):
 			system.bt = year;
 
 		#Generating coordinates relative to COM of each system
-		system.setSystemOrbits(s = steps, r = revolutions);
+		system.setSystemOrbits(s = steps, r = revmax);
 		times = system.times;
 
 		for m in system.bodies:
 			m.bt = year;
 			#if len(m.bodies) > 1:
-			m.setSystemOrbits(s = steps, r = revolutions, verbose = True);
+			m.setSystemOrbits(s = steps, r = revmax, verbose = True);
 
 		#Getting final absolute X, Y, and Z coordinates in order to generate lightcurve
 		l = time.time();
@@ -73,7 +76,16 @@ def genTransits(data, steps = 7501., revolutions = 1., n = 81):
 		fx, fy, fz, zpos = gt.sort_keys(final_x, final_y, final_z);
 		lb, intersects = gt.arrange_combinations(fx, fy, transit_array);
 
-		cadence, light_blocked = gt.generate_lightcurve(fx, fy, lb, intersects, n, transit_array, times, zpos);
+		if type(revolutions) is not (float or int):
+			lccr = np.sum([((times/max(times) * revmax >= a[0]) & (times/max(times) * revmax <= a[1])) for a in revolutions], axis=0).astype('bool');
+		else:
+			lccr = np.ones(len(times)).astype('bool');
+
+		#print lccr;
+
+		#print len(fx), len(fy), len(lb), len(intersects), len([n]), len(transit_array), len(times), len(zpos);
+
+		cadence, light_blocked = gt.generate_lightcurve(fx[lccr], fy[lccr], lb[lccr], intersects[lccr], n, transit_array, times[lccr], zpos[lccr]);
 		lightcurves.append(light_blocked);
 		if (u == 0):
 			timecoords = cadence
