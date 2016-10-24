@@ -188,3 +188,31 @@ def mean_confidence_interval(data, confidence=0.95):
 	m, se = np.mean(a), scipy.stats.sem(a)
 	h = se * sp.stats.t._ppf((1+confidence)/2., n-1)
 	return m, m-h, m+h	
+	
+def eval_kde(lc, base):
+	pdf = np.zeros(len(base))
+	gaussian_kdes = np.array([gkde(lc[u:u+5000]) for u in np.arange(0,len(lc) - 5000, 100)])
+	plots = []
+	for h in np.arange(0, len(gaussian_kdes))[::50]:
+		m = gaussian_kdes[h]
+		evaluated = m.evaluate(base)
+		base2 = base + base[np.argmin(-evaluated)]
+		print base[np.argmin(-evaluated)]
+		evaluated2 = m.evaluate(base2)
+		plots.append(evaluated2)
+		pdf += evaluated2
+
+	pdf /= len(gaussian_kdes[::50])
+	#cdf = np.cumsum(pdf)
+
+	return pdf
+	
+def draw_from_cdf(base, pdf, length):
+	cdf = np.cumsum(pdf)
+	cdf2 = cdf[(cdf != cdf[0]) & (cdf != cdf[-1])]
+	base2 = base[(cdf != cdf[0]) & (cdf != cdf[-1])]
+	print len(base2), len(cdf2)
+	f = scipy.interpolate.interp1d(cdf2, base2)
+	print "K"
+	random_val = np.random.rand(length) * cdf2[-1]
+	return f(random_val)

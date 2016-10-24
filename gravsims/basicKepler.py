@@ -304,7 +304,7 @@ def transformOrbit(r, theta, inclination, arg_periastron, ascending_node):
 	y = r * (np.cos(theta + arg_periastron) * np.sin(ascending_node) + np.cos(ascending_node) * np.sin(theta + arg_periastron + np.pi) * np.cos(inclination - np.pi/2.));
 	z = r * np.sin(theta + arg_periastron) * np.sin(inclination - np.pi/2.);
 
-	return -y, -z, x;
+	return x, -z, y;
 
 def whole_orbit(m1, m2, a, e, arg_periastron, inclination=0, ascending_node = 0.):
 	"""Combines all other functions for orbits into one. Used in the
